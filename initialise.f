@@ -64,9 +64,13 @@
         SUBROUTINE print_coord
         IMPLICIT NONE
         INTEGER :: iter
+        PRINT *, '%%%%%%%%%%%%%%%%%%'
+        PRINT *, 'printing coordinates'
         DO iter=1,atoms
           PRINT *,  coord(1,iter),coord(2,iter),coord(3,iter)
         END DO
+        PRINT *, 'end of coordinates'
+        PRINT *, '%%%%%%%%%%%%%%%%%%'
         END SUBROUTINE print_coord
 
         SUBROUTINE calc_centroid(coord,centroid)

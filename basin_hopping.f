@@ -1,13 +1,41 @@
         MODULE basin_hopping
         USE constants
-        USE initialise          ,ONLY: coord,atoms
+        USE initialise          ,ONLY: coord,atoms,set_coord_to_origin
         USE random_coord        ,ONLY: max_radius, polar_2_cartesian
         CONTAINS
 
         SUBROUTINE bhop_move
         IMPLICIT NONE
-        CALL random_move(coord)
+!       CALL random_move(coord)
+        CALL get_new_radius(max_radius)
         END SUBROUTINE bhop_move
+
+
+        SUBROUTINE get_new_radius(radius)
+        IMPLICIT NONE
+        REAL(KIND=SGL),INTENT(INOUT) :: radius
+        REAL(KIND=DBL),DIMENSION(atoms) :: radius_array
+        PRINT *, 'old radius'
+        PRINT *, radius
+        CALL set_coord_to_origin
+        CALL calc_all_radius(coord,radius_array)
+!       CALL calc_distance(coord)
+        radius = REAL(MAXVAL(radius_array))
+        PRINT *, 'new radius'
+        PRINT *, radius
+        END SUBROUTINE get_new_radius
+
+        SUBROUTINE calc_all_radius(coord,radius_array)
+        IMPLICIT NONE
+        REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN) :: coord
+        REAL(KIND=DBL),DIMENSION(:),INTENT(INOUT) :: radius_array
+        INTEGER         ::      iter
+        
+        DO iter=1,atoms
+          radius_array(iter) = NORM2(coord(:,iter))
+        END DO
+
+        END SUBROUTINE calc_all_radius
 
         SUBROUTINE angular_displacement
         IMPLICIT NONE
@@ -31,10 +59,6 @@
 
         END SUBROUTINE angular_displacement
 
-! subroutines to determine atoms with the largest energy
-        SUBROUTINE get_highest_energy_atom
-        IMPLICIT NONE
-        END SUBROUTINE get_highest_energy_atom
 
         SUBROUTINE displace_angle(coord)
         IMPLICIT NONE
@@ -44,8 +68,8 @@
 
         r = max_radius
         CALL RANDOM_NUMBER(random_array)
-        theta = PI * random_array(1)
-        phi = 2.0 * PI * random_array(2)
+        theta = REAL(PI * random_array(1))
+        phi = REAL(2.0 * PI * random_array(2))
 
         coord(1) = r
         coord(2) = theta

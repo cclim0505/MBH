@@ -205,7 +205,7 @@
       if( n .lt. 5 ) go to 60
    40 mp1 = m + 1
       do 50 i = mp1,n,5
-        dtemp = dtemp + dx(i)*dy(i) + dx(i + 1)*dy(i + 1) +&
+        dtemp = dtemp + dx(i)*dy(i) + dx(i + 1)*dy(i + 1) + 
      &   dx(i + 2)*dy(i + 2) + dx(i + 3)*dy(i + 3) + dx(i + 4)*dy(i + 4)
    50 continue
    60 ddot = dtemp

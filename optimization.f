@@ -190,6 +190,8 @@
       MODULE optimization
       USE constants
       USE initialise
+      USE gupta
+      USE array_matrix
 
       CONTAINS
       SUBROUTINE optim_lbfgs(in_coord,out_coord)
@@ -230,26 +232,31 @@
 !======================================================================
 !     Declare a few additional variables for this problem
 !======================================================================
-      REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE,INTENT(IN):: in_coord
+      REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN) :: in_coord
       REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE,INTENT(OUT):: out_coord
       INTEGER                      :: iter
-      REAL(KIND=DBL),DIMENSION(:),ALLOCATABLE  :: grad
-      REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE :: temp_coord
+      REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE  :: grad
+      REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE  :: temp_coord
+
 !======================================================================
 !     Determine the number of variables, n
 !======================================================================
-      n=6   ! 3 translations + 3 rotations
+      n = SIZE(in_coord)
+
 !======================================================================
 !     Allocate dynamic arrays
 !======================================================================
-      ALLOCATE ( grad(n) )
       ALLOCATE ( nbd(n), x(n), l(n), u(n), g(n) )
       ALLOCATE ( iwa(3*n) )
       ALLOCATE ( wa(2*m*n + 5*n + 11*m*m + 8*m) )
+
       IF (ALLOCATED(out_coord)) DEALLOCATE(out_coord)
       IF (ALLOCATED(temp_coord)) DEALLOCATE(temp_coord)
-      ALLOCATE(out_coord(atoms,3))
-      ALLOCATE(temp_coord(atoms,3))
+      IF (ALLOCATED(grad)) DEALLOCATE(grad)
+
+      ALLOCATE ( out_coord(SIZE(in_coord,1) ,SIZE(in_coord,2)) )
+      ALLOCATE ( temp_coord(SIZE(in_coord,1) ,SIZE(in_coord,2)) )
+      ALLOCATE ( grad(SIZE(in_coord,1) ,SIZE(in_coord,2)) )
 !======================================================================
 !     Set bounds for variables, x is unbounded, set to 0 
 !======================================================================
@@ -258,7 +265,10 @@
       END DO
 !======================================================================
 !     Define the starting values
-      x(:) = 0.0D0
+      CALL mat_2_arr(in_coord,x)
+      PRINT *, 'x values are'
+      PRINT *, x
+
 !======================================================================
 !     Optimiztion loop starts here
 !======================================================================
@@ -267,15 +277,15 @@
       task = 'START'
 
  
-      do while(task(1:2).eq.'FG'.or.task.eq.'NEW_X'.or. &
+      do while(task(1:2).eq.'FG'.or.task.eq.'NEW_X'.or.  
      &          task.eq.'START') 
          
 !     This is the call to the L-BFGS-B code.
         
         
          
-         call setulb ( n, m, x, l, u, nbd, f, g, factr, pgtol, &
-     &                  wa, iwa, task, iprint, &
+         call setulb ( n, m, x, l, u, nbd, f, g, factr, pgtol,  
+     &                  wa, iwa, task, iprint,  
      &                  csave, lsave, isave, dsave )
          
          if (task(1:2) .eq. 'FG') then
@@ -283,16 +293,22 @@
 !     Calculate Energy
 !======================================================================
 ! convert x(array) to coord(matrix)
-            CALL gupta_energy(coord,n,f)
+            CALL arr_2_mat(x,temp_coord)
+! calculate function
+            CALL gupta_energy(temp_coord,atoms,f)
 !======================================================================
 !     Call first deriv
 !======================================================================
-            temp_coord = in_coord        !use temp_coord, because haus_deriv updates input coordinates
-            CALL gupta_gradient(coord,grad)
+! calculate 1st derivative
+            CALL gupta_gradient(temp_coord,grad)
 ! convert grad(matrix) to g(array)
-            g = grad
+            CALL mat_2_arr(grad,g)
          end if
       end do
+
+! convert x(array) to coord(matrix)
+! after minimization
+      CALL arr_2_mat(x,out_coord)
 
 !======================================================================
 !     End of do while loop
