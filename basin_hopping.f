@@ -5,6 +5,7 @@
         CONTAINS
 
         SUBROUTINE bhop_move
+! basin-hopping step
         IMPLICIT NONE
 !       CALL random_move(coord)
         CALL get_new_radius(max_radius)
@@ -12,25 +13,28 @@
 
 
         SUBROUTINE get_new_radius(radius)
+! get new radius for each structure before angular move
         IMPLICIT NONE
         REAL(KIND=SGL),INTENT(INOUT) :: radius
         REAL(KIND=DBL),DIMENSION(atoms) :: radius_array
-        PRINT *, 'old radius'
-        PRINT *, radius
+
+
         CALL set_coord_to_origin
+
         CALL calc_all_radius(coord,radius_array)
 !       CALL calc_distance(coord)
+
         radius = REAL(MAXVAL(radius_array))
-        PRINT *, 'new radius'
-        PRINT *, radius
+
         END SUBROUTINE get_new_radius
 
         SUBROUTINE calc_all_radius(coord,radius_array)
+! calculate distance of each atom from origin
         IMPLICIT NONE
         REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN) :: coord
         REAL(KIND=DBL),DIMENSION(:),INTENT(INOUT) :: radius_array
         INTEGER         ::      iter
-        
+
         DO iter=1,atoms
           radius_array(iter) = NORM2(coord(:,iter))
         END DO
@@ -38,29 +42,21 @@
         END SUBROUTINE calc_all_radius
 
         SUBROUTINE angular_displacement
+! angular displacement move for basin-hopping
         IMPLICIT NONE
         INTEGER     :: chosen_index=1
         INTEGER     :: iter
         REAL(KIND=DBL),DIMENSION(3)     :: chosen_coord
 
-        PRINT *, 'before displacement'
-        DO iter=1,atoms
-          PRINT *, coord(1,iter), coord(2,iter), coord(3,iter)
-        END DO
-
         chosen_coord = coord(:,chosen_index)
         CALL displace_angle(chosen_coord)
         coord(:,chosen_index) = chosen_coord
-
-        PRINT *, 'after displacement'
-        DO iter=1,atoms
-          PRINT *, coord(1,iter), coord(2,iter), coord(3,iter)
-        END DO
 
         END SUBROUTINE angular_displacement
 
 
         SUBROUTINE displace_angle(coord)
+! random angle move for angular displacement
         IMPLICIT NONE
         REAL(KIND=DBL),DIMENSION(3),INTENT(INOUT)          :: coord
         REAL(KIND=SGL)          :: r, theta, phi
@@ -80,6 +76,7 @@
         END SUBROUTINE displace_angle
 
         SUBROUTINE random_move(coord)
+! random move for basin-hopping
         IMPLICIT NONE
         REAL(KIND=DBL),DIMENSION(:,:),INTENT(INOUT)     :: coord
         REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE       :: temp_coord
@@ -89,11 +86,6 @@
 
         IF(ALLOCATED(temp_coord)) DEALLOCATE(temp_coord)
         ALLOCATE(temp_coord(3,atoms))   ! use size function for allocation
-
-        PRINT *, 'before random move'
-        DO iter=1,atoms
-          PRINT *, coord(1,iter), coord(2,iter), coord(3,iter)
-        END DO
 
         CALL RANDOM_NUMBER(random_array)
 
@@ -108,11 +100,6 @@
         END DO
 
         coord = coord + temp_coord
-
-        PRINT *, 'after random move'
-        DO iter=1,atoms
-          PRINT *, coord(1,iter), coord(2,iter), coord(3,iter)
-        END DO
 
         END SUBROUTINE random_move
 

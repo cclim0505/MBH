@@ -1,14 +1,22 @@
         MODULE initialise
-        USE constants
-        INTEGER         :: atoms
+        USE constants           ,ONLY: DBL
+        INTEGER                                    :: atoms
         REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE  :: coord
-        REAL(KIND=DBL),DIMENSION(:),ALLOCATABLE  :: posit
+        REAL(KIND=DBL),DIMENSION(:),ALLOCATABLE    :: posit
         REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE  :: gradient
         CHARACTER(LEN=18)        :: in_file = 'test2.xyz'
         CONTAINS
 
+!       SUBROUTINE read_session
+!       IMPLICIT NONE
+!       CHARACTER(LEN=14)       :: session_in = 'session_in.dat'
+!       things to read
+!       material type
+!       number of atoms
+!       END SUBROUTINE read_session
 
         SUBROUTINE init_gupta
+! read gupta potential parameters
         USE gupta
         IMPLICIT NONE
         OPEN (20,FILE='AuAu_parameter1.dat',STATUS='old')
@@ -17,6 +25,7 @@
         END SUBROUTINE init_gupta
 
         SUBROUTINE read_atoms
+! determine the number of atoms
         IMPLICIT NONE
         OPEN(20,FILE=TRIM(in_file), STATUS='old')
         READ(20,*) atoms
@@ -24,6 +33,7 @@
         END SUBROUTINE read_atoms
 
         SUBROUTINE read_coord
+! read input coordinates
         IMPLICIT NONE
         INTEGER :: iter
         CHARACTER(len=1)        :: dummy
@@ -41,6 +51,7 @@
         END SUBROUTINE read_coord
 
         SUBROUTINE convert_coord_to_x(coord,posit)
+! convert coordinates from matrix form to array form
         IMPLICIT NONE
         INTEGER :: iter,jter
         REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN) :: coord
@@ -62,6 +73,7 @@
         END SUBROUTINE convert_coord_to_x
 
         SUBROUTINE print_coord
+! print out coordinates for checking
         IMPLICIT NONE
         INTEGER :: iter
         PRINT *, '%%%%%%%%%%%%%%%%%%'
@@ -79,13 +91,8 @@
         INTEGER :: iter
         REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN)    :: coord
         REAL(KIND=DBL),DIMENSION(3),INTENT(OUT)     :: centroid
+
         centroid (:) = 0.0
-!        PRINT *, ''
-!        PRINT *, 'Coord in calc_centroid'
-!        PRINT *, ''
-!        DO iter=1,atoms
-!          PRINT *, iter,coord(iter,1), coord(iter,2), coord(iter,3)
-!        END DO
         DO iter=1,atoms
           centroid(1) = centroid(1) + coord(1,iter)
           centroid(2) = centroid(2) + coord(2,iter)
@@ -94,9 +101,9 @@
 
         centroid(:) = centroid(:) / REAL(atoms)
 
-!        PRINT *, ''
-!        PRINT *, 'centroid =', centroid(1), centroid(2), centroid(3)
-!        PRINT *, ''
+        PRINT *, 'centroid'
+        PRINT *, centroid(1), centroid(2), centroid(3)
+
         END SUBROUTINE calc_centroid
 
         SUBROUTINE set_coord_to_origin

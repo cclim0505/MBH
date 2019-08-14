@@ -1,11 +1,11 @@
         MODULE gupta
-        USE constants
+        USE constants           ,ONLY: DBL
         REAL(KIND=DBL)        :: a_ij
         REAL(KIND=DBL)        :: eta
         REAL(KIND=DBL)        :: p_ij
         REAL(KIND=DBL)        :: q_ij
         REAL(KIND=DBL)        :: r_zero
-        REAl(KIND=DBl),DIMENSION(:,:),ALLOCATABLE  :: distance
+        REAl(KIND=DBl),DIMENSION(:,:),ALLOCATABLE  :: distance !  distances matrix, for gupta band energy calculation
         CONTAINS
 
 !=====================================================================
@@ -143,6 +143,7 @@
         END SUBROUTINE gupta_band
 
         SUBROUTINE set_rij_size(atoms,rij_size)
+! determines the array size for array rij
         IMPLICIT NONE
         INTEGER,INTENT(IN)      :: atoms
         INTEGER,INTENT(OUT)     :: rij_size

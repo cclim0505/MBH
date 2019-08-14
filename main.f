@@ -9,6 +9,8 @@
         IMPLICIT NONE
         REAL(KIND=DBL)  :: energy 
         REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE  :: optim_coord
+        REAL(KIND=DBL),DIMENSION(3)     :: centre
+        REAL(KIND=DBL),DIMENSION(10) :: radius_array
 !       TYPE(system)    :: cluster
 !       cluster = system('AuAu', 4, 3.0)
 !       PRINT *, cluster
@@ -19,16 +21,26 @@
         IF (ALLOCATED(optim_coord)) DEALLOCATE(optim_coord)
         ALLOCATE (optim_coord(3,atoms))
 !       CALL print_coord
+        
 
 !       CALL gupta_energy(coord,atoms,energy)
 
 
         CALL set_random_coord
-        CALL gupta_energy(coord,atoms,energy)
-!       CALL gupta_gradient(coord,gradient)
+        CALL calc_all_radius(coord,radius_array)
+
+        CALL print_coord
 
         CALL set_coord_to_origin
-        CALL print_coord
+        CALL calc_all_radius(coord,radius_array)
+
+!       CALL calc_centroid(coord,centre)
+!       CALL print_coord
+!       CALL gupta_energy(coord,atoms,energy)
+!       CALL gupta_gradient(coord,gradient)
+
+!       CALL set_coord_to_origin
+!       CALL print_coord
 
         CALL bhop_move
 !       CALL angular_displacement

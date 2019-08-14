@@ -1,6 +1,6 @@
 !
 !  Energy and gradient for Many-Body Potential.
-!
+!  Developed by senior
       SUBROUTINE agrad(x,grad)
       USE constants,         ONLY:DBL
       USE initialise,             ONLY:atoms

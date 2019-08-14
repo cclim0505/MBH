@@ -14,9 +14,10 @@
 !       SUBROUTINE centroid
 
         SUBROUTINE get_radius_param
+! get maximum radius for initial structure's random generation
         IMPLICIT NONE
         REAL(KIND=SGL)  ::      radius_ratio
-        REAL(KIND=SGL)  ::      ref_radius
+        REAL(KIND=SGL)  ::      ref_radius      ! material dependent radius
         radius_ratio = 0.88
         ref_radius = 4.0782     ! in angstroms for fcc gold
         max_radius = sphere_radius(atoms, ref_radius)
@@ -24,6 +25,8 @@
         END SUBROUTINE get_radius_param
 
         REAL FUNCTION sphere_radius(num,r_zero)
+! calculate the radius of the sphere based on number of atoms and
+! nearest neighbour distance for different materials
         IMPLICIT NONE
         INTEGER,INTENT(IN) :: num        ! number of atoms
         REAL(KIND=SGL),INTENT(IN) :: r_zero     ! nearest neighbour distance
@@ -34,13 +37,14 @@
         END FUNCTION sphere_radius
 
         SUBROUTINE init_random_coord(atoms,coord)
+! initialise random coordinates
         IMPLICIT NONE
         INTEGER,INTENT(IN)                             :: atoms
         REAL(KIND=DBL),DIMENSION(:,:),INTENT(INOUT)    :: coord
         REAL(KIND=SGL),DIMENSION(atoms,3)              :: random_array
         INTEGER         :: iter
+
         CALL RANDOM_NUMBER(random_array)
-        PRINT *, random_array
 
         DO iter=1,atoms
           coord(1,iter) = max_radius * random_array(iter,1)
@@ -52,14 +56,11 @@
           CALL polar_2_cartesian(coord(:,iter))
         END DO
 
-        PRINT *, 'coord after polar_2_cartesian'
-        DO iter=1,atoms
-          PRINT *, coord(1,iter), coord(2,iter), coord(3,iter)
-        END DO
 
         END SUBROUTINE init_random_coord
 
         SUBROUTINE polar_2_cartesian(coord)
+! transform polar coordinates to cartesian coordinates
         IMPLICIT NONE
         REAL(KIND=DBL),DIMENSION(3),INTENT(INOUT)  :: coord
         REAL(KIND=SGL)    :: r, theta, phi
