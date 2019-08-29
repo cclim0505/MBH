@@ -1,0 +1,4 @@
+number_of_atoms			10
+material_or_element		Au
+potential_type			Gupta
+total_MC_steps			100

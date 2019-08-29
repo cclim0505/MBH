@@ -1,3 +1,4 @@
+! module to compliment senior's gupta energy code
       MODULE param
       IMPLICIT NONE
       REAL:: epsilon_a,zeta_a,p_a,q_a,rzero_a      ! element A-A interaction

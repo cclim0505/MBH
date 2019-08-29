@@ -21,29 +21,40 @@
 !       gupta_repulse_gradient
 !       gupta_band_gradient
 
-        SUBROUTINE calc_distance(coord)
+        SUBROUTINE read_gupta_param
+! read gupta potential parameters
+        IMPLICIT NONE
+        INTEGER         :: f_gupta
+
+        OPEN (NEWUNIT=f_gupta,FILE='AuAu_parameter1.dat',STATUS='old')
+        READ(f_gupta,*) a_ij, eta, p_ij, q_ij, r_zero
+        CLOSE(f_gupta)
+
+        END SUBROUTINE read_gupta_param
+
+        SUBROUTINE calc_distance(x_coord)
 ! calculate the distances between all atomic pairs
         IMPLICIT NONE
-        REAl(KIND=DBL),DIMENSION(:,:),INTENT(IN) :: coord
+        REAl(KIND=DBL),DIMENSION(:,:),INTENT(IN) :: x_coord
         REAL(KIND=DBL),DIMENSION(3)              :: temp
         INTEGER :: atoms
         INTEGER :: iter,jter 
-        atoms = SIZE(coord,2)
+        atoms = SIZE(x_coord,2)
 ! distances matrix, for gupta band energy calculation
         IF (ALLOCATED(distance)) DEALLOCATE(distance)
         ALLOCATE(distance(atoms,atoms))
         DO iter=1,atoms
           DO jter=1,atoms
-            temp = coord(:,iter) -  coord(:,jter)
+            temp = x_coord(:,iter) -  x_coord(:,jter)
             distance(iter,jter) = NORM2(temp) 
           END DO
         END DO
         END SUBROUTINE calc_distance
 
-        SUBROUTINE gupta_energy(coord,atoms,energy)
+        SUBROUTINE gupta_energy(x_coord,atoms,energy)
 ! compute gupta energy
         IMPLICIT NONE
-        REAl(KIND=DBL),DIMENSION(:,:),INTENT(IN) :: coord
+        REAl(KIND=DBL),DIMENSION(:,:),INTENT(IN) :: x_coord
         INTEGER,INTENT(IN)                       :: atoms
         REAL(KIND=DBL),INTENT(OUT)               :: energy
         REAL(KIND=DBL)                           :: band, repulse
@@ -58,11 +69,11 @@
 !       ALLOCATE(distance(atoms,atoms))
 !       DO iter=1,atoms
 !         DO jter=1,atoms
-!           temp = coord(:,iter) -  coord(:,jter)
+!           temp = x_coord(:,iter) -  x_coord(:,jter)
 !           distance(iter,jter) = NORM2(temp) 
 !         END DO
 !       END DO
-        CALL calc_distance(coord)
+        CALL calc_distance(x_coord)
 
 !=====================================================================
 ! Single counting for distances(rij), for gupta repulsive energy calculation
@@ -73,7 +84,7 @@
         counter = 1
         DO iter=1 ,atoms-1
           DO jter=iter+1, atoms
-            temp = coord(:,iter) - coord(:,jter) 
+            temp = x_coord(:,iter) - x_coord(:,jter) 
             rij(counter) = NORM2(temp)
             counter = counter + 1
           END DO
@@ -94,9 +105,12 @@
         CALL gupta_band(distance,band)
         energy = band + repulse
         energy = energy / REAL(atoms)
-        PRINT *, "band energy in eV is", band
-        PRINT *, "repulsive energy in eV is", repulse
-        PRINT *, "energy per atom in eV is", energy
+
+!DEBUG==============================================
+!       PRINT *, "band energy in eV is", band
+!       PRINT *, "repulsive energy in eV is", repulse
+!       PRINT *, "energy per atom in eV is", energy
+!DEBUG==============================================
 
         END SUBROUTINE gupta_energy
 
@@ -152,10 +166,10 @@
         rij_size = temp / 2
         END SUBROUTINE set_rij_size
 
-        SUBROUTINE gupta_gradient(coord,grad)
+        SUBROUTINE gupta_gradient(x_coord,grad)
 ! calculate gradient of gupta potential
         IMPLICIT NONE
-        REAl(KIND=DBL),DIMENSION(:,:),INTENT(IN)  :: coord
+        REAl(KIND=DBL),DIMENSION(:,:),INTENT(IN)  :: x_coord
         REAl(KIND=DBL),DIMENSION(:,:),INTENT(OUT) :: grad
         REAl(KIND=DBL),DIMENSION(:,:),ALLOCATABLE :: repulse
         REAl(KIND=DBL),DIMENSION(:,:),ALLOCATABLE :: band
@@ -170,30 +184,32 @@
         ALLOCATE(repulse(size_1,size_2))
         ALLOCATE(band(size_1,size_2))
 
-        CALL gupta_repulse_gradient(coord,repulse)
-        CALL gupta_band_gradient(coord,band)
+        CALL gupta_repulse_gradient(x_coord,repulse)
+        CALL gupta_band_gradient(x_coord,band)
 
         grad = repulse + band
 
-        PRINT *, 'repulse and band value'
-        PRINT *, repulse(1,1), band(1,1)
+!DEBUG==============================================
+!       PRINT *, 'repulse and band value'
+!       PRINT *, repulse(1,1), band(1,1)
 
-        PRINT *, ''
-        PRINT *, 'grad values'
-        DO iter=1,size_2
-          PRINT *, grad(1,iter), grad(2,iter), grad(3,iter)
-        END DO
-        PRINT *, ''
+!       PRINT *, ''
+!       PRINT *, 'grad values'
+!       DO iter=1,size_2
+!         PRINT *, grad(1,iter), grad(2,iter), grad(3,iter)
+!       END DO
+!       PRINT *, ''
+!DEBUG==============================================
 
         DEALLOCATE(repulse, band)
 
         END SUBROUTINE gupta_gradient
 
 
-        SUBROUTINE gupta_repulse_gradient(coord,grad)
+        SUBROUTINE gupta_repulse_gradient(x_coord,grad)
 ! calculate gradient of gupta repulsive term
         IMPLICIT NONE
-        REAl(KIND=DBL),DIMENSION(:,:),INTENT(IN)  :: coord
+        REAl(KIND=DBL),DIMENSION(:,:),INTENT(IN)  :: x_coord
         REAl(KIND=DBL),DIMENSION(:,:),INTENT(OUT) :: grad
         REAL(KIND=DBL)  :: temp_x, temp_y, temp_z
         REAL(KIND=DBL)  :: sum_temp_x, sum_temp_y, sum_temp_z
@@ -202,7 +218,7 @@
         REAL(KIND=DBL)  :: rij
         INTEGER         :: atoms
         INTEGER         :: iter, jter
-        atoms = SIZE(coord,2)
+        atoms = SIZE(x_coord,2)
         grad = 0.0D0
         DO iter=1,atoms
           sum_temp_x = 0.0D0
@@ -217,14 +233,19 @@
             expon = temp * (-p_ij) / r_zero
 !=======================
             temp = expon / rij
-            PRINT *, 'GRAD_ATT', iter, jter, temp
-!=======================
-            temp_x = expon * (coord(1,iter) - coord(1,jter)) / rij
-            temp_y = expon * (coord(2,iter) - coord(2,jter)) / rij
-            temp_z = expon * (coord(3,iter) - coord(3,jter)) / rij
-!=======================
-            PRINT *, 'tempxyz',temp_x, temp_y, temp_z
-!=======================
+
+!DEBUG==============================================
+!           PRINT *, 'GRAD_ATT', iter, jter, temp
+!DEBUG==============================================
+
+            temp_x = expon * (x_coord(1,iter) - x_coord(1,jter)) / rij
+            temp_y = expon * (x_coord(2,iter) - x_coord(2,jter)) / rij
+            temp_z = expon * (x_coord(3,iter) - x_coord(3,jter)) / rij
+
+!DEBUG==============================================
+!           PRINT *, 'tempxyz',temp_x, temp_y, temp_z
+!DEBUG==============================================
+
             sum_temp_x = sum_temp_x + temp_x
             sum_temp_y = sum_temp_y + temp_y
             sum_temp_z = sum_temp_z + temp_z
@@ -233,18 +254,22 @@
           grad(2,iter) = 2.0D0* sum_temp_y
           grad(3,iter) = 2.0D0* sum_temp_z
         END DO
-        PRINT *, ''
-        PRINT *, 'repulse gradient'
-        DO iter=1,atoms
-          PRINT *, grad(1,iter), grad(2,iter) ,grad(3,iter)
-        END DO
-        PRINT *, ''
+
+!DEBUG==============================================
+!       PRINT *, ''
+!       PRINT *, 'repulse gradient'
+!       DO iter=1,atoms
+!         PRINT *, grad(1,iter), grad(2,iter) ,grad(3,iter)
+!       END DO
+!       PRINT *, ''
+!DEBUG==============================================
+
         END SUBROUTINE gupta_repulse_gradient
 
-        SUBROUTINE gupta_band_gradient(coord,grad)
+        SUBROUTINE gupta_band_gradient(x_coord,grad)
 ! calculate gradient of gupta band term
         IMPLICIT NONE
-        REAl(KIND=DBL),DIMENSION(:,:),INTENT(IN)  :: coord
+        REAl(KIND=DBL),DIMENSION(:,:),INTENT(IN)  :: x_coord
         REAl(KIND=DBL),DIMENSION(:,:),INTENT(OUT) :: grad
         REAL(KIND=DBL)  :: temp_x, temp_y, temp_z
         REAL(KIND=DBL)  :: sum_temp_x, sum_temp_y, sum_temp_z
@@ -254,7 +279,7 @@
         REAL(KIND=DBL)  :: rij
         INTEGER         :: atoms
         INTEGER         :: iter, jter
-        atoms = SIZE(coord,2)
+        atoms = SIZE(x_coord,2)
         IF (ALLOCATED(band_denom)) DEALLOCATE(band_denom)
         ALLOCATE(band_denom(atoms))
         grad = 0.0D0
@@ -287,9 +312,9 @@
             temp = (eta**2)*DEXP(temp)
             temp = temp * 2.0D0 * (-q_ij)
             temp = temp / (rij * r_zero)
-            temp_x = temp * (coord(1,iter) - coord(1,jter))
-            temp_y = temp * (coord(2,iter) - coord(2,jter))
-            temp_z = temp * (coord(3,iter) - coord(3,jter))
+            temp_x = temp * (x_coord(1,iter) - x_coord(1,jter))
+            temp_y = temp * (x_coord(2,iter) - x_coord(2,jter))
+            temp_z = temp * (x_coord(3,iter) - x_coord(3,jter))
             sum_temp_x = sum_temp_x + temp_x
             sum_temp_y = sum_temp_y + temp_y
             sum_temp_z = sum_temp_z + temp_z
@@ -312,9 +337,9 @@
             temp = (eta**2)*DEXP(temp)
             temp = temp * 2.0D0 * (-q_ij)
             temp = temp / (rij * r_zero)
-            temp_x = temp * (coord(1,iter) - coord(1,jter))
-            temp_y = temp * (coord(2,iter) - coord(2,jter))
-            temp_z = temp * (coord(3,iter) - coord(3,jter))
+            temp_x = temp * (x_coord(1,iter) - x_coord(1,jter))
+            temp_y = temp * (x_coord(2,iter) - x_coord(2,jter))
+            temp_z = temp * (x_coord(3,iter) - x_coord(3,jter))
             sum_temp_x = sum_temp_x + temp_x * band_denom(jter) 
             sum_temp_y = sum_temp_y + temp_y * band_denom(jter) 
             sum_temp_z = sum_temp_z + temp_z * band_denom(jter) 

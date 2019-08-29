@@ -3,7 +3,7 @@
 !  Developed by senior
       SUBROUTINE agrad(x,grad)
       USE constants,         ONLY:DBL
-      USE initialise,             ONLY:atoms
+      USE coord_grad_ene,             ONLY:atoms
       USE param
       IMPLICIT NONE
       INTEGER        :: J1, J2, J3, J4
@@ -106,11 +106,13 @@
 !      open(50,file='check_grad1.dat',status='old')
 !      write(50,*)grad
 
+!DEBUG==============================================
       PRINT *, "================="
       PRINT *, "grad values of agrad"
       DO j1=1,atoms*3
          PRINT *, j1, grad(j1)
       END DO
       PRINT *, ""
+!DEBUG==============================================
 
       END SUBROUTINE agrad

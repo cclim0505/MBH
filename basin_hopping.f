@@ -1,14 +1,43 @@
         MODULE basin_hopping
         USE constants
-        USE initialise          ,ONLY: coord,atoms,set_coord_to_origin
+        USE coord_grad_ene      ,ONLY: atoms,coord,set_coord_to_origin
         USE random_coord        ,ONLY: max_radius, polar_2_cartesian
+        USE gupta               
+
+        REAL(KIND=SGL)  :: random_displacement_ratio 
+        REAL(KIND=SGL)  :: energy_compare_ratio 
         CONTAINS
+
+        SUBROUTINE read_bh_param
+! read basin hopping parameters
+        IMPLICIT NONE
+        CHARACTER(LEN=18)        :: bh_param_file = 'param_BH.dat'
+        INTEGER                  :: f_bh
+        CHARACTER(LEN=2)         :: dummy
+
+        OPEN(NEWUNIT=f_bh, FILE=bh_param_file, STATUS='old')
+        READ(f_bh,*) dummy, random_displacement_ratio
+        READ(f_bh,*) dummy, energy_compare_ratio
+        CLOSE(f_bh)
+
+        END SUBROUTINE read_bh_param
 
         SUBROUTINE bhop_move
 ! basin-hopping step
         IMPLICIT NONE
-!       CALL random_move(coord)
-        CALL get_new_radius(max_radius)
+        LOGICAL         :: do_angle_disp ! perform angular displacement
+        INTEGER         :: atom_index    ! index of atom to be moved
+
+        CALL random_move(coord)
+
+        do_angle_disp = .FALSE.
+        CALL sort_energies(do_angle_disp,atom_index)
+
+        IF (do_angle_disp .EQV. .TRUE.) THEN
+          CALL get_new_radius(max_radius)
+          CALL angular_displacement
+        END IF
+
         END SUBROUTINE bhop_move
 
 
@@ -18,9 +47,7 @@
         REAL(KIND=SGL),INTENT(INOUT) :: radius
         REAL(KIND=DBL),DIMENSION(atoms) :: radius_array
 
-
         CALL set_coord_to_origin
-
         CALL calc_all_radius(coord,radius_array)
 !       CALL calc_distance(coord)
 
@@ -28,15 +55,15 @@
 
         END SUBROUTINE get_new_radius
 
-        SUBROUTINE calc_all_radius(coord,radius_array)
+        SUBROUTINE calc_all_radius(x_coord,radius_array)
 ! calculate distance of each atom from origin
         IMPLICIT NONE
-        REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN) :: coord
+        REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN) :: x_coord
         REAL(KIND=DBL),DIMENSION(:),INTENT(INOUT) :: radius_array
         INTEGER         ::      iter
 
         DO iter=1,atoms
-          radius_array(iter) = NORM2(coord(:,iter))
+          radius_array(iter) = NORM2(x_coord(:,iter))
         END DO
 
         END SUBROUTINE calc_all_radius
@@ -45,7 +72,6 @@
 ! angular displacement move for basin-hopping
         IMPLICIT NONE
         INTEGER     :: chosen_index=1
-        INTEGER     :: iter
         REAL(KIND=DBL),DIMENSION(3)     :: chosen_coord
 
         chosen_coord = coord(:,chosen_index)
@@ -55,10 +81,10 @@
         END SUBROUTINE angular_displacement
 
 
-        SUBROUTINE displace_angle(coord)
+        SUBROUTINE displace_angle(x_coord)
 ! random angle move for angular displacement
         IMPLICIT NONE
-        REAL(KIND=DBL),DIMENSION(3),INTENT(INOUT)          :: coord
+        REAL(KIND=DBL),DIMENSION(3),INTENT(INOUT)          :: x_coord
         REAL(KIND=SGL)          :: r, theta, phi
         REAL(KIND=SGL),DIMENSION(2)     :: random_array
 
@@ -67,22 +93,24 @@
         theta = REAL(PI * random_array(1))
         phi = REAL(2.0 * PI * random_array(2))
 
-        coord(1) = r
-        coord(2) = theta
-        coord(3) = phi
+        x_coord(1) = r
+        x_coord(2) = theta
+        x_coord(3) = phi
 
-        CALL polar_2_cartesian(coord)
+        CALL polar_2_cartesian(x_coord)
          
         END SUBROUTINE displace_angle
 
-        SUBROUTINE random_move(coord)
+        SUBROUTINE random_move(x_coord)
 ! random move for basin-hopping
         IMPLICIT NONE
-        REAL(KIND=DBL),DIMENSION(:,:),INTENT(INOUT)     :: coord
+        REAL(KIND=DBL),DIMENSION(:,:),INTENT(INOUT)     :: x_coord
         REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE       :: temp_coord
         REAL(KIND=SGL),DIMENSION(atoms,3)     :: random_array
         INTEGER         :: iter
-        REAL(KIND=SGL)  :: radius=1.0
+        REAL(KIND=SGL)  :: radius
+
+        radius = random_displacement_ratio
 
         IF(ALLOCATED(temp_coord)) DEALLOCATE(temp_coord)
         ALLOCATE(temp_coord(3,atoms))   ! use size function for allocation
@@ -99,8 +127,109 @@
           CALL polar_2_cartesian(temp_coord(:,iter))
         END DO
 
-        coord = coord + temp_coord
+        x_coord = x_coord + temp_coord
+
+        DEALLOCATE(temp_coord)
 
         END SUBROUTINE random_move
 
+
+        SUBROUTINE sort_energies(do_angle_disp,highest_index)
+        IMPLICIT NONE
+        LOGICAL,INTENT(OUT)              :: do_angle_disp    ! YES or NO to carry out angular displacement step
+        INTEGER,INTENT(OUT)              :: highest_index
+        REAL(KIND=DBL),DIMENSION(atoms)  :: energy_array
+        REAL(KIND=DBL)                   :: highest_ene,lowest_ene
+        INTEGER                          :: iter
+
+        energy_array = 0.0D0
+        CALL indv_gupta_energy(coord,atoms,energy_array)
+
+!DEBUG BEGINS==============================================
+        PRINT *, "energy array in sort_energies"
+        DO iter=1,atoms
+          PRINT *, energy_array(iter)
+        END DO
+!DEBUG ENDS==============================================
+
+        highest_ene = MAXVAL(energy_array)
+        lowest_ene = MINVAL(energy_array)
+        highest_index = MAXLOC(energy_array,DIM=1)
+
+!DEBUG BEGINS==============================================
+        PRINT *, "highest_ene =" , highest_ene
+        PRINT *, "lowest_ene =" , lowest_ene
+        PRINT *, "highest_index =" , highest_index
+!DEBUG ENDS==============================================
+
+        lowest_ene = ABS(lowest_ene) * DBLE(energy_compare_ratio)
+        highest_ene = ABS(highest_ene)
+        do_angle_disp = .FALSE.
+        IF (highest_ene > lowest_ene) do_angle_disp = .TRUE.
+
+!DEBUG BEGINS==============================================
+        PRINT *, "new lowest_ene =" , lowest_ene
+        PRINT *, "do_angle_disp =", do_angle_disp
+!DEBUG ENDS==============================================
+
+        END SUBROUTINE sort_energies 
+
+        SUBROUTINE indv_gupta_energy(x_coord,atoms,energy_array)
+        IMPLICIT NONE
+        REAl(KIND=DBL),DIMENSION(:,:),INTENT(IN)     :: x_coord
+        INTEGER,INTENT(IN)                           :: atoms
+        REAL(KIND=DBL),DIMENSION(atoms),INTENT(OUT)  :: energy_array
+        REAL(KIND=DBL),DIMENSION(atoms)              :: repulsive_array
+        REAL(KIND=DBL),DIMENSION(atoms)              :: band_array
+
+        repulsive_array = 0.0D0
+        band_array = 0.0D0
+
+        CALL calc_distance(x_coord)
+        CALL indv_gupta_repulsive(repulsive_array)
+        CALL indv_gupta_band(band_array)
+        energy_array = repulsive_array + band_array
+
+        END SUBROUTINE indv_gupta_energy
+
+        SUBROUTINE indv_gupta_repulsive(energy_array)
+        IMPLICIT NONE
+        REAL(KIND=DBL),DIMENSION(:),INTENT(INOUT)  :: energy_array
+        REAL(KIND=DBL)                          :: temp, temp_sum
+        INTEGER                                 :: iter,jter
+
+        DO iter=1,atoms
+          temp_sum = 0.0D0
+          DO jter=1,atoms
+            IF (iter == jter) CYCLE
+            temp = (distance(iter,jter)/ r_zero) - 1.0D0
+            temp = temp * (-p_ij)
+            temp = a_ij*DEXP(temp)
+            temp_sum = temp_sum + temp
+          END DO
+          energy_array(iter) = temp_sum
+        END DO
+
+        END SUBROUTINE indv_gupta_repulsive
+
+        SUBROUTINE indv_gupta_band(energy_array)
+        IMPLICIT NONE
+        REAL(KIND=DBL),DIMENSION(:),INTENT(INOUT)  :: energy_array
+        REAL(KIND=DBL)                          :: temp, temp_sum
+        INTEGER                                 :: iter,jter
+
+        temp_sum = 0.0D0
+        DO iter=1,atoms
+          temp_sum = 0.0D0
+          DO jter=1,atoms
+             IF(iter==jter) CYCLE 
+             temp = (distance(iter,jter) / r_zero) - 1.0D0
+             temp = temp * 2.0D0*(-q_ij)
+             temp = (eta**2)*DEXP(temp)
+             temp_sum = temp_sum + temp
+          END DO
+          energy_array(iter) = -DSQRT(temp_sum)
+        END DO
+
+        END SUBROUTINE indv_gupta_band
         END MODULE basin_hopping

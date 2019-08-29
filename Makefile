@@ -5,14 +5,18 @@ FFLAGS = -O -Wall -fbounds-check -g -Wno-uninitialized
 DRIVER = main.f
 
 CONSTANTS = constants.f
-TYPES = types.f		#not initialised
+CGE = coord_grad_ene.f
 GUPTA = gupta.f
-INITIALISE = initialise.f
-PARAM = param.f
-GRAD = grad.f		#gradient subroutine developed by senior
 RANDOM = random_coord.f
-ARRMAT = array_matrix.f
 BASIN = basin_hopping.f
+MONTE = monte.f
+
+PARAM = param.f		#module to compliment senior's code
+GRAD = grad.f		#gradient subroutine developed by senior
+ARRMAT = array_matrix.f
+#ENERGIES = energies.f
+
+INITIALISE = initialise.f
 
 BLAS = blas.f
 LINPACK = linpack.f
@@ -28,11 +32,8 @@ DRIVER_OPEN =
 all :  main
 
 
-
-
-
-main : $(CONSTANTS) $(TYPES) $(GUPTA) $(INITIALISE) $(RANDOM) $(ARRMAT) $(BASIN) $(PARAM) $(GRAD) $(BLAS) $(LINPACK) $(TIMER) $(LBFGS) $(OPTIM) $(DRIVER) 
-	$(FC) $(FFLAGS) $(CONSTANTS) $(TYPES) $(GUPTA) $(INITIALISE) $(RANDOM) $(ARRMAT) $(BASIN) $(PARAM) $(GRAD) $(BLAS) $(LINPACK) $(TIMER) $(LBFGS) $(OPTIM) $(DRIVER)  -o run.out
+main : $(CONSTANTS) $(CGE) $(GUPTA) $(RANDOM) $(BASIN) $(MONTE) $(INITIALISE)  $(ARRMAT)  $(PARAM) $(GRAD) $(BLAS) $(LINPACK) $(TIMER) $(LBFGS) $(OPTIM) $(DRIVER) 
+	$(FC) $(FFLAGS) $(CONSTANTS) $(CGE) $(GUPTA) $(RANDOM) $(BASIN) $(MONTE) $(INITIALISE)  $(ARRMAT)  $(PARAM) $(GRAD) $(BLAS) $(LINPACK) $(TIMER) $(LBFGS) $(OPTIM) $(DRIVER)  -o run.out
 
 
 

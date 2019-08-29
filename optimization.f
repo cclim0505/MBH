@@ -188,12 +188,19 @@
 !     --------------------------------------------------------------
 !    
       MODULE optimization
-      USE constants
-      USE initialise
+      USE constants             ,ONLY:DBL
+      USE coord_grad_ene        ,ONLY:atoms,coord,optim_coord
       USE gupta
       USE array_matrix
 
       CONTAINS
+      SUBROUTINE local_minim
+      IMPLICIT NONE
+
+      CALL optim_lbfgs(coord,optim_coord)
+
+      END SUBROUTINE local_minim
+
       SUBROUTINE optim_lbfgs(in_coord,out_coord)
 
 !

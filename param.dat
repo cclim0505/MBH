@@ -1,0 +1,4 @@
+acceptance_ratio		0.5
+random_move_ratio		0.36
+energy_ratio			0.4
+MC_temperature_denominator	0.8
