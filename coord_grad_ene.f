@@ -12,8 +12,8 @@
         REAL(KIND=DBL)                             :: energy
         REAL(KIND=DBL)                             :: old_energy
         REAL(KIND=DBL)                             :: lowest_energy
-
-        CHARACTER(LEN=18)        :: in_file = 'test2.xyz'
+!DEBUG===============================================================
+        CHARACTER(LEN=18)        :: in_file 
 
         CONTAINS
 
@@ -105,6 +105,25 @@
         CLOSE(f_out)
 
         END SUBROUTINE print_coord_xyz
+
+        SUBROUTINE print_lowest_coord
+        IMPLICIT NONE
+        CHARACTER(LEN=18) :: filename='6lowest_coord.xyz'
+        INTEGER           :: iter
+        INTEGER           :: f_out
+
+        OPEN(NEWUNIT=f_out,FILE=TRIM(filename),ACCESS='append')
+
+        WRITE(f_out,*) atoms
+        WRITE(f_out,*) lowest_energy
+        DO iter=1,atoms
+          WRITE(f_out,*) 'Au',lowest_coord(1,iter),
+     &      lowest_coord(2,iter) ,lowest_coord(3,iter)
+        END DO
+
+        CLOSE(f_out)
+
+        END SUBROUTINE print_lowest_coord
 
         SUBROUTINE calc_centroid(x_coord,centroid)
 ! calculate centroid for set_coord_to_origin

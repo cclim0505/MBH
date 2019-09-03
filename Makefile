@@ -10,6 +10,8 @@ GUPTA = gupta.f
 RANDOM = random_coord.f
 BASIN = basin_hopping.f
 MONTE = monte.f
+INERTIA = inertia.f
+POTENTIAL = potential.f
 
 PARAM = param.f		#module to compliment senior's code
 GRAD = grad.f		#gradient subroutine developed by senior
@@ -32,8 +34,8 @@ DRIVER_OPEN =
 all :  main
 
 
-main : $(CONSTANTS) $(CGE) $(GUPTA) $(RANDOM) $(BASIN) $(MONTE) $(INITIALISE)  $(ARRMAT)  $(PARAM) $(GRAD) $(BLAS) $(LINPACK) $(TIMER) $(LBFGS) $(OPTIM) $(DRIVER) 
-	$(FC) $(FFLAGS) $(CONSTANTS) $(CGE) $(GUPTA) $(RANDOM) $(BASIN) $(MONTE) $(INITIALISE)  $(ARRMAT)  $(PARAM) $(GRAD) $(BLAS) $(LINPACK) $(TIMER) $(LBFGS) $(OPTIM) $(DRIVER)  -o run.out
+main : $(CONSTANTS) $(CGE) $(GUPTA) $(RANDOM) $(BASIN) $(MONTE) $(INERTIA) $(POTENTIAL) $(INITIALISE) $(ARRMAT) $(PARAM) $(GRAD) $(BLAS) $(LINPACK) $(TIMER) $(LBFGS) $(OPTIM) $(DRIVER) 
+	$(FC) $(FFLAGS) $(CONSTANTS) $(CGE) $(GUPTA) $(RANDOM) $(BASIN) $(MONTE) $(INERTIA) $(POTENTIAL) $(INITIALISE) $(ARRMAT) $(PARAM) $(GRAD) $(BLAS) $(LINPACK) $(TIMER) $(LBFGS) $(OPTIM) $(DRIVER)  -o run.out
 
 
 

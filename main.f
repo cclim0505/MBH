@@ -6,12 +6,15 @@
      &    ,read_atoms,read_coord 
      &    ,coord,optim_coord,old_coord,lowest_coord
      &    ,energy,old_energy,lowest_energy,atoms
-     &    , print_coord,print_coord_xyz
+     &    , print_coord,print_coord_xyz,print_lowest_coord
         USE gupta               ,ONLY: gupta_energy
         USE random_coord        ,ONLY: set_random_coord
         USE optimization        ,ONLY: local_minim
         USE basin_hopping       ,ONLY: bhop_move
         USE monte               ,ONLY: monte_carlo
+        USE inertia             ,ONLY: calc_inertia_tensor
+     &    ,print_inertia_tensor 
+        USE potential           ,ONLY: calc_energy
 
         IMPLICIT NONE
         INTEGER                 :: iter
@@ -26,31 +29,33 @@
 
 !DEBUG BEGINS==============================================
         CALL read_coord
-        CALL gupta_energy(coord,atoms,energy)
+!       CALL gupta_energy(coord,atoms,energy)
+        CALL calc_energy
         PRINT *, 'ground_state is ', energy
-        CALL print_coord_xyz('3input.xyz')
+!       CALL print_coord_xyz('3input.xyz')
 !DEBUG ENDS==============================================
 
         CALL set_random_coord
 
 
 !DEBUG BEGINS==============================================
-        CALL print_coord
-        CALL print_coord_xyz('1aa.xyz')
+!       CALL print_coord
+!       CALL print_coord_xyz('1aa.xyz')
 !DEBUG ENDS==============================================
 
         CALL local_minim
         coord = optim_coord
         old_coord = coord
-        CALL gupta_energy(coord,atoms,energy)
+!       CALL gupta_energy(coord,atoms,energy)
+        CALL calc_energy
         old_energy = energy
 
         lowest_coord = old_coord
         lowest_energy = old_energy
 
 !DEBUG BEGINS==============================================
-        CALL print_coord
-        CALL print_coord_xyz('1bb.xyz')
+!       CALL print_coord
+!       CALL print_coord_xyz('1bb.xyz')
 !DEBUG ENDS==============================================
 
 
@@ -59,20 +64,26 @@
           CALL bhop_move
           CALL local_minim
           coord = optim_coord
-          CALL gupta_energy(coord,atoms,energy)
+!         CALL gupta_energy(coord,atoms,energy)
+          CALL calc_energy
 
 !DEBUG BEGINS==============================================
-        CALL print_coord_xyz('2serial.xyz')
+!         CALL print_coord_xyz('2serial.xyz')
 !DEBUG ENDS==============================================
 
-        CALL monte_carlo
+          CALL monte_carlo
 
         END DO
 
 !DEBUG BEGINS==============================================
-        PRINT *, 'lowest energy is ', old_energy
-        CALL print_coord_xyz('4MBH_result.xyz')
+        PRINT *, 'lowest energy is ', lowest_energy
+!       CALL print_coord_xyz('4MBH_result.xyz')
 !DEBUG ENDS==============================================
+
+        CALL print_lowest_coord
+
+        CALL calc_inertia_tensor
+        CALL print_inertia_tensor
 
 ! Output global coordinates and energy
 
