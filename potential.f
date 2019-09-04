@@ -2,6 +2,7 @@
         USE constants          ,ONLY: DBL
 !       USE coord_grad_ene     ,ONLY: gradient, energy
         USE gupta              ,ONLY: gupta_energy, gupta_gradient
+     &    ,indv_gupta_energy
 !       USE dftb              ,ONLY: dftb_energy, dftb_gradient
 
         INTEGER         :: potential_type
@@ -40,19 +41,18 @@
 
         END SUBROUTINE calc_gradient
 
-        SUBROUTINE calc_indv_energy(x_coord,natoms,ene_pot)
+        SUBROUTINE calc_indv_energy(x_coord,natoms,ene_array)
         IMPLICIT NONE
-        REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN)    :: x_coord
-        INTEGER,INTENT(IN)                          :: natoms
-        REAL(KIND=DBL),INTENT(OUT)                  :: ene_pot
-
+        REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN)       :: x_coord
+        INTEGER,INTENT(IN)                             :: natoms
+        REAL(KIND=DBL),DIMENSION(natoms),INTENT(OUT)   :: ene_array
 
         IF (potential_type == 1) THEN
-!         CALL indv_gupta_energy(x_coord,natoms,ene_pot)
+          CALL indv_gupta_energy(x_coord,natoms,ene_array)
 !       ELSE IF (potential_type == 2) THEN
-!         CALL indv_dftb_energy(x_coord,natoms,ene_pot)
+!         CALL indv_dftb_energy(x_coord,natoms,ene_array)
 !       ELSE IF (potential_type == 3) THEN
-!         CALL indv_density_func_energy(x_coord,natoms,ene_pot)
+!         CALL indv_density_func_energy(x_coord,natoms,ene_array)
         END IF
 
         END SUBROUTINE calc_indv_energy

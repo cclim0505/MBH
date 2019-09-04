@@ -74,49 +74,9 @@
 !       CALL print_coord_xyz('4MBH_result.xyz')
 !DEBUG ENDS==============================================
 
-        CALL print_lowest_coord
+        CALL print_lowest_coord         ! output lowest coord and energy
 
         CALL calc_inertia_tensor
         CALL print_inertia_tensor
-
-! Output global coordinates and energy
-
-
-!=========================================
-!TESTING ONLY
-!       CALL read_atoms
-!       CALL read_coord
-!       CALL print_coord
-!=========================================
-
-!       CALL print_coord
-        
-
-!       CALL sort_energies
-
-
-
-
-!       CALL set_random_coord
-!       CALL calc_all_radius(coord,radius_array)
-
-!       CALL print_coord
-
-!       CALL set_coord_to_origin
-!       CALL calc_all_radius(coord,radius_array)
-
-!       CALL calc_centroid(coord,centre)
-!       CALL print_coord
-!       CALL gupta_gradient(coord,gradient)
-
-!       CALL set_coord_to_origin
-!       CALL print_coord
-!       CALL bhop_move
-!       CALL angular_displacement
-
-!       CALL optim_lbfgs(coord,optim_coord)
-!       CALL print_coord
-
-!       CALL open_gupta_parameter
 
         END PROGRAM main

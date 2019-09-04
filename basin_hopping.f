@@ -35,7 +35,7 @@
 
         IF (do_angle_disp .EQV. .TRUE.) THEN
           CALL get_new_radius(max_radius)
-          CALL angular_displacement
+          CALL angular_displacement(atom_index)
         END IF
 
         END SUBROUTINE bhop_move
@@ -68,10 +68,10 @@
 
         END SUBROUTINE calc_all_radius
 
-        SUBROUTINE angular_displacement
+        SUBROUTINE angular_displacement(chosen_index)
 ! angular displacement move for basin-hopping
         IMPLICIT NONE
-        INTEGER     :: chosen_index=1
+        INTEGER,INTENT(IN)     :: chosen_index  
         REAL(KIND=DBL),DIMENSION(3)     :: chosen_coord
 
         chosen_coord = coord(:,chosen_index)
@@ -135,6 +135,7 @@
 
 
         SUBROUTINE sort_energies(do_angle_disp,highest_index)
+        USE potential           ,ONLY: calc_indv_energy 
         IMPLICIT NONE
         LOGICAL,INTENT(OUT)              :: do_angle_disp    ! YES or NO to carry out angular displacement step
         INTEGER,INTENT(OUT)              :: highest_index
@@ -143,14 +144,14 @@
         INTEGER                          :: iter
 
         energy_array = 0.0D0
-!       CALL calc_indv_energy(coord,atoms,energy_array)
-        CALL indv_gupta_energy(coord,atoms,energy_array)
+        CALL calc_indv_energy(coord,atoms,energy_array)
+!       CALL indv_gupta_energy(coord,atoms,energy_array)
 
 !DEBUG BEGINS==============================================
-        PRINT *, "energy array in sort_energies"
-        DO iter=1,atoms
-          PRINT *, energy_array(iter)
-        END DO
+!       PRINT *, "energy array in sort_energies"
+!       DO iter=1,atoms
+!         PRINT *, energy_array(iter)
+!       END DO
 !DEBUG ENDS==============================================
 
         highest_ene = MAXVAL(energy_array)
@@ -158,8 +159,8 @@
         highest_index = MAXLOC(energy_array,DIM=1)
 
 !DEBUG BEGINS==============================================
-        PRINT *, "highest_ene =" , highest_ene
-        PRINT *, "lowest_ene =" , lowest_ene
+!       PRINT *, "highest_ene =" , highest_ene
+!       PRINT *, "lowest_ene =" , lowest_ene
         PRINT *, "highest_index =" , highest_index
 !DEBUG ENDS==============================================
 
@@ -169,8 +170,8 @@
         IF (highest_ene > lowest_ene) do_angle_disp = .TRUE.
 
 !DEBUG BEGINS==============================================
-        PRINT *, "new lowest_ene =" , lowest_ene
-        PRINT *, "do_angle_disp =", do_angle_disp
+!       PRINT *, "new lowest_ene =" , lowest_ene
+!       PRINT *, "do_angle_disp =", do_angle_disp
 !DEBUG ENDS==============================================
 
         END SUBROUTINE sort_energies 
