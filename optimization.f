@@ -190,7 +190,7 @@
       MODULE optimization
       USE constants             ,ONLY:DBL
       USE coord_grad_ene        ,ONLY:atoms,coord,optim_coord
-      USE gupta
+      USE potential             ,ONLY:calc_energy,calc_gradient
       USE array_matrix
 
       CONTAINS
@@ -302,12 +302,12 @@
 ! convert x(array) to coord(matrix)
             CALL arr_2_mat(x,temp_coord)
 ! calculate function
-            CALL gupta_energy(temp_coord,atoms,f)
+            CALL calc_energy(temp_coord,atoms,f)
 !======================================================================
 !     Call first deriv
 !======================================================================
 ! calculate 1st derivative
-            CALL gupta_gradient(temp_coord,grad)
+            CALL calc_gradient(temp_coord,grad)
 ! convert grad(matrix) to g(array)
             CALL mat_2_arr(grad,g)
          end if

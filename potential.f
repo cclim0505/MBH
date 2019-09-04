@@ -1,5 +1,6 @@
         MODULE potential
-        USE coord_grad_ene     ,ONLY: coord, gradient, atoms, energy
+        USE constants          ,ONLY: DBL
+!       USE coord_grad_ene     ,ONLY: gradient, energy
         USE gupta              ,ONLY: gupta_energy, gupta_gradient
 !       USE dftb              ,ONLY: dftb_energy, dftb_gradient
 
@@ -7,30 +8,36 @@
 
         CONTAINS
 
-        SUBROUTINE calc_energy
+        SUBROUTINE calc_energy(x_coord,natoms,ene_pot)
         IMPLICIT NONE
+        REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN)    :: x_coord
+        INTEGER,INTENT(IN)                          :: natoms
+        REAL(KIND=DBL),INTENT(OUT)                  :: ene_pot
+
 
         IF (potential_type == 1) THEN
-          CALL gupta_energy(coord,atoms,energy)
+          CALL gupta_energy(x_coord,natoms,ene_pot)
 !       ELSE IF (potential_type == 2) THEN
-!         CALL dftb_energy(coord,atoms,energy)
+!         CALL dftb_energy(x_coord,natoms,ene_pot)
 !       ELSE IF (potential_type == 3) THEN
-!         CALL density_func_energy(coord,atoms,energy)
+!         CALL density_func_energy(x_coord,natoms,ene_pot)
         END IF
 
         END SUBROUTINE calc_energy
 
-        SUBROUTINE calc_grad
+        SUBROUTINE calc_gradient(x_coord,g_gradient)
         IMPLICIT NONE
+        REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN)     :: x_coord
+        REAL(KIND=DBL),DIMENSION(:,:),INTENT(OUT)    :: g_gradient
 
         IF (potential_type == 1) THEN
-          CALL gupta_gradient(coord,gradient)
+          CALL gupta_gradient(x_coord,g_gradient)
 !       ELSE IF (potential_type == 2) THEN
-!         CALL dftb_gradient(coord,gradient)
+!         CALL dftb_gradient(x_coord,g_gradient)
 !       ELSE IF (potential_type == 3) THEN
-!         CALL density_func_gradient(coord,gradient)
+!         CALL density_func_gradient(x_coord,g_gradient)
         END IF
 
-        END SUBROUTINE calc_grad
+        END SUBROUTINE calc_gradient
 
         END MODULE potential

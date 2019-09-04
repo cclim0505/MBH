@@ -7,7 +7,6 @@
      &    ,coord,optim_coord,old_coord,lowest_coord
      &    ,energy,old_energy,lowest_energy,atoms
      &    , print_coord,print_coord_xyz,print_lowest_coord
-        USE gupta               ,ONLY: gupta_energy
         USE random_coord        ,ONLY: set_random_coord
         USE optimization        ,ONLY: local_minim
         USE basin_hopping       ,ONLY: bhop_move
@@ -18,8 +17,6 @@
 
         IMPLICIT NONE
         INTEGER                 :: iter
-        REAL(KIND=DBL),DIMENSION(3)     :: centre
-        REAL(KIND=DBL),DIMENSION(10) :: radius_array
 
 
 !=========================================
@@ -29,8 +26,7 @@
 
 !DEBUG BEGINS==============================================
         CALL read_coord
-!       CALL gupta_energy(coord,atoms,energy)
-        CALL calc_energy
+        CALL calc_energy(coord,atoms,energy)
         PRINT *, 'ground_state is ', energy
 !       CALL print_coord_xyz('3input.xyz')
 !DEBUG ENDS==============================================
@@ -46,8 +42,7 @@
         CALL local_minim
         coord = optim_coord
         old_coord = coord
-!       CALL gupta_energy(coord,atoms,energy)
-        CALL calc_energy
+        CALL calc_energy(coord,atoms,energy)
         old_energy = energy
 
         lowest_coord = old_coord
@@ -64,8 +59,7 @@
           CALL bhop_move
           CALL local_minim
           coord = optim_coord
-!         CALL gupta_energy(coord,atoms,energy)
-          CALL calc_energy
+          CALL calc_energy(coord,atoms,energy)
 
 !DEBUG BEGINS==============================================
 !         CALL print_coord_xyz('2serial.xyz')
@@ -92,7 +86,6 @@
 !TESTING ONLY
 !       CALL read_atoms
 !       CALL read_coord
-!       CALL gupta_energy(coord,atoms,energy)
 !       CALL print_coord
 !=========================================
 
@@ -114,7 +107,6 @@
 
 !       CALL calc_centroid(coord,centre)
 !       CALL print_coord
-!       CALL gupta_energy(coord,atoms,energy)
 !       CALL gupta_gradient(coord,gradient)
 
 !       CALL set_coord_to_origin

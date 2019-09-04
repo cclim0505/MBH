@@ -174,7 +174,7 @@
         REAl(KIND=DBL),DIMENSION(:,:),ALLOCATABLE :: repulse
         REAl(KIND=DBL),DIMENSION(:,:),ALLOCATABLE :: band
         INTEGER :: size_1, size_2
-        INTEGER :: iter
+!       INTEGER :: iter
 
         size_1 = SIZE(grad,1)
         size_2 = SIZE(grad,2)
