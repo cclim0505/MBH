@@ -37,25 +37,25 @@
         IMPLICIT NONE
         REAl(KIND=DBL),DIMENSION(:,:),INTENT(IN) :: x_coord
         REAL(KIND=DBL),DIMENSION(3)              :: temp
-        INTEGER :: atoms
+        INTEGER :: natoms
         INTEGER :: iter,jter 
-        atoms = SIZE(x_coord,2)
+        natoms = SIZE(x_coord,2)
 ! distances matrix, for gupta band energy calculation
         IF (ALLOCATED(distance)) DEALLOCATE(distance)
-        ALLOCATE(distance(atoms,atoms))
-        DO iter=1,atoms
-          DO jter=1,atoms
+        ALLOCATE(distance(natoms,natoms))
+        DO iter=1,natoms
+          DO jter=1,natoms
             temp = x_coord(:,iter) -  x_coord(:,jter)
             distance(iter,jter) = NORM2(temp) 
           END DO
         END DO
         END SUBROUTINE calc_distance
 
-        SUBROUTINE gupta_energy(x_coord,atoms,energy)
+        SUBROUTINE gupta_energy(x_coord,natoms,energy)
 ! compute gupta energy
         IMPLICIT NONE
         REAl(KIND=DBL),DIMENSION(:,:),INTENT(IN) :: x_coord
-        INTEGER,INTENT(IN)                       :: atoms
+        INTEGER,INTENT(IN)                       :: natoms
         REAL(KIND=DBL),INTENT(OUT)               :: energy
         REAL(KIND=DBL)                           :: band, repulse
         INTEGER                                  :: iter,jter,counter
@@ -66,9 +66,9 @@
 !=====================================================================
 ! distances matrix, for gupta band energy calculation
 !       IF (ALLOCATED(distance)) DEALLOCATE(distance)
-!       ALLOCATE(distance(atoms,atoms))
-!       DO iter=1,atoms
-!         DO jter=1,atoms
+!       ALLOCATE(distance(natoms,natoms))
+!       DO iter=1,natoms
+!         DO jter=1,natoms
 !           temp = x_coord(:,iter) -  x_coord(:,jter)
 !           distance(iter,jter) = NORM2(temp) 
 !         END DO
@@ -77,13 +77,13 @@
 
 !=====================================================================
 ! Single counting for distances(rij), for gupta repulsive energy calculation
-!        CALL combination(atoms,2,rij_size)
-        CALL set_rij_size(atoms,rij_size)
+!        CALL combination(natoms,2,rij_size)
+        CALL set_rij_size(natoms,rij_size)
         IF (ALLOCATED(rij)) DEALLOCATE(rij)
         ALLOCATE(rij(rij_size))
         counter = 1
-        DO iter=1 ,atoms-1
-          DO jter=iter+1, atoms
+        DO iter=1 ,natoms-1
+          DO jter=iter+1, natoms
             temp = x_coord(:,iter) - x_coord(:,jter) 
             rij(counter) = NORM2(temp)
             counter = counter + 1
@@ -104,7 +104,7 @@
         CALL gupta_repulsive(rij,repulse)
         CALL gupta_band(distance,band)
         energy = band + repulse
-        energy = energy / REAL(atoms)
+        energy = energy / REAL(natoms)
 
 !DEBUG==============================================
 !       PRINT *, "band energy in eV is", band
@@ -156,13 +156,13 @@
         energy = temp_total
         END SUBROUTINE gupta_band
 
-        SUBROUTINE set_rij_size(atoms,rij_size)
+        SUBROUTINE set_rij_size(natoms,rij_size)
 ! determines the array size for array rij
         IMPLICIT NONE
-        INTEGER,INTENT(IN)      :: atoms
+        INTEGER,INTENT(IN)      :: natoms
         INTEGER,INTENT(OUT)     :: rij_size
         INTEGER                 :: temp
-        temp = (atoms**2) - atoms
+        temp = (natoms**2) - natoms
         rij_size = temp / 2
         END SUBROUTINE set_rij_size
 
@@ -216,15 +216,15 @@
         REAL(KIND=DBL)  :: expon
         REAL(KIND=DBL)  :: temp
         REAL(KIND=DBL)  :: rij
-        INTEGER         :: atoms
+        INTEGER         :: natoms
         INTEGER         :: iter, jter
-        atoms = SIZE(x_coord,2)
+        natoms = SIZE(x_coord,2)
         grad = 0.0D0
-        DO iter=1,atoms
+        DO iter=1,natoms
           sum_temp_x = 0.0D0
           sum_temp_y = 0.0D0
           sum_temp_z = 0.0D0
-          DO jter=1,atoms
+          DO jter=1,natoms
             IF(iter==jter) CYCLE 
             rij = distance(iter,jter)
             temp = (rij / r_zero) - 1.0D0
@@ -258,7 +258,7 @@
 !DEBUG==============================================
 !       PRINT *, ''
 !       PRINT *, 'repulse gradient'
-!       DO iter=1,atoms
+!       DO iter=1,natoms
 !         PRINT *, grad(1,iter), grad(2,iter) ,grad(3,iter)
 !       END DO
 !       PRINT *, ''
@@ -277,17 +277,17 @@
         REAL(KIND=DBL)  :: expon_sum
         REAL(KIND=DBL),DIMENSION(:),ALLOCATABLE  :: band_denom   ! band energy denominator
         REAL(KIND=DBL)  :: rij
-        INTEGER         :: atoms
+        INTEGER         :: natoms
         INTEGER         :: iter, jter
-        atoms = SIZE(x_coord,2)
+        natoms = SIZE(x_coord,2)
         IF (ALLOCATED(band_denom)) DEALLOCATE(band_denom)
-        ALLOCATE(band_denom(atoms))
+        ALLOCATE(band_denom(natoms))
         grad = 0.0D0
 !=======================================================
 ! Calculate band_denom terms
-        DO iter=1,atoms
+        DO iter=1,natoms
           expon_sum = 0.0D0
-          DO jter=1,atoms
+          DO jter=1,natoms
              IF(iter==jter) CYCLE
              rij = distance(iter,jter)
              temp = (rij / r_zero ) - 1.0D0
@@ -300,11 +300,11 @@
         END DO
 !=======================================================
 ! Summation for all band terms
-        DO iter=1,atoms
+        DO iter=1,natoms
           sum_temp_x = 0.0D0
           sum_temp_y = 0.0D0
           sum_temp_z = 0.0D0
-          DO jter=1,atoms
+          DO jter=1,natoms
             IF(iter==jter) CYCLE
             rij = distance(iter,jter)
             temp = (rij / r_zero ) - 1.0D0
@@ -325,11 +325,11 @@
         END DO
 !=======================================================
 ! Summation for remaining band terms
-        DO iter=1,atoms
+        DO iter=1,natoms
           sum_temp_x = 0.0D0
           sum_temp_y = 0.0D0
           sum_temp_z = 0.0D0
-          DO jter=1,atoms
+          DO jter=1,natoms
             IF(iter==jter) CYCLE
             rij = distance(iter,jter)
             temp = (rij / r_zero ) - 1.0D0
@@ -352,6 +352,67 @@
 ! Add negative sign to band term
         grad = -grad
         END SUBROUTINE gupta_band_gradient
+
+        SUBROUTINE indv_gupta_energy(x_coord,natoms,energy_array)
+        IMPLICIT NONE
+        REAl(KIND=DBL),DIMENSION(:,:),INTENT(IN)      :: x_coord
+        INTEGER,INTENT(IN)                            :: natoms
+        REAL(KIND=DBL),DIMENSION(natoms),INTENT(OUT)  :: energy_array
+        REAL(KIND=DBL),DIMENSION(natoms)              :: repulsive_array
+        REAL(KIND=DBL),DIMENSION(natoms)              :: band_array
+
+        repulsive_array = 0.0D0
+        band_array = 0.0D0
+
+        CALL calc_distance(x_coord)
+        CALL indv_gupta_repulsive(natoms,repulsive_array)
+        CALL indv_gupta_band(natoms,band_array)
+        energy_array = repulsive_array + band_array
+
+        END SUBROUTINE indv_gupta_energy
+
+        SUBROUTINE indv_gupta_repulsive(natoms,energy_array)
+        IMPLICIT NONE
+        INTEGER,INTENT(IN)                      :: natoms
+        REAL(KIND=DBL),DIMENSION(:),INTENT(INOUT)  :: energy_array
+        REAL(KIND=DBL)                          :: temp, temp_sum
+        INTEGER                                 :: iter,jter
+
+        DO iter=1,natoms
+          temp_sum = 0.0D0
+          DO jter=1,natoms
+            IF (iter == jter) CYCLE
+            temp = (distance(iter,jter)/ r_zero) - 1.0D0
+            temp = temp * (-p_ij)
+            temp = a_ij*DEXP(temp)
+            temp_sum = temp_sum + temp
+          END DO
+          energy_array(iter) = temp_sum
+        END DO
+
+        END SUBROUTINE indv_gupta_repulsive
+
+        SUBROUTINE indv_gupta_band(natoms,energy_array)
+        IMPLICIT NONE
+        INTEGER,INTENT(IN)                      :: natoms
+        REAL(KIND=DBL),DIMENSION(:),INTENT(INOUT)  :: energy_array
+        REAL(KIND=DBL)                          :: temp, temp_sum
+        INTEGER                                 :: iter,jter
+
+        temp_sum = 0.0D0
+        DO iter=1,natoms
+          temp_sum = 0.0D0
+          DO jter=1,natoms
+             IF(iter==jter) CYCLE 
+             temp = (distance(iter,jter) / r_zero) - 1.0D0
+             temp = temp * 2.0D0*(-q_ij)
+             temp = (eta**2)*DEXP(temp)
+             temp_sum = temp_sum + temp
+          END DO
+          energy_array(iter) = -DSQRT(temp_sum)
+        END DO
+
+        END SUBROUTINE indv_gupta_band
 
 !       SUBROUTINE old_gupta_band(rij,energy)
 !       IMPLICIT NONE

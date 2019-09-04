@@ -143,6 +143,7 @@
         INTEGER                          :: iter
 
         energy_array = 0.0D0
+!       CALL calc_indv_energy(coord,atoms,energy_array)
         CALL indv_gupta_energy(coord,atoms,energy_array)
 
 !DEBUG BEGINS==============================================
@@ -174,62 +175,4 @@
 
         END SUBROUTINE sort_energies 
 
-        SUBROUTINE indv_gupta_energy(x_coord,atoms,energy_array)
-        IMPLICIT NONE
-        REAl(KIND=DBL),DIMENSION(:,:),INTENT(IN)     :: x_coord
-        INTEGER,INTENT(IN)                           :: atoms
-        REAL(KIND=DBL),DIMENSION(atoms),INTENT(OUT)  :: energy_array
-        REAL(KIND=DBL),DIMENSION(atoms)              :: repulsive_array
-        REAL(KIND=DBL),DIMENSION(atoms)              :: band_array
-
-        repulsive_array = 0.0D0
-        band_array = 0.0D0
-
-        CALL calc_distance(x_coord)
-        CALL indv_gupta_repulsive(repulsive_array)
-        CALL indv_gupta_band(band_array)
-        energy_array = repulsive_array + band_array
-
-        END SUBROUTINE indv_gupta_energy
-
-        SUBROUTINE indv_gupta_repulsive(energy_array)
-        IMPLICIT NONE
-        REAL(KIND=DBL),DIMENSION(:),INTENT(INOUT)  :: energy_array
-        REAL(KIND=DBL)                          :: temp, temp_sum
-        INTEGER                                 :: iter,jter
-
-        DO iter=1,atoms
-          temp_sum = 0.0D0
-          DO jter=1,atoms
-            IF (iter == jter) CYCLE
-            temp = (distance(iter,jter)/ r_zero) - 1.0D0
-            temp = temp * (-p_ij)
-            temp = a_ij*DEXP(temp)
-            temp_sum = temp_sum + temp
-          END DO
-          energy_array(iter) = temp_sum
-        END DO
-
-        END SUBROUTINE indv_gupta_repulsive
-
-        SUBROUTINE indv_gupta_band(energy_array)
-        IMPLICIT NONE
-        REAL(KIND=DBL),DIMENSION(:),INTENT(INOUT)  :: energy_array
-        REAL(KIND=DBL)                          :: temp, temp_sum
-        INTEGER                                 :: iter,jter
-
-        temp_sum = 0.0D0
-        DO iter=1,atoms
-          temp_sum = 0.0D0
-          DO jter=1,atoms
-             IF(iter==jter) CYCLE 
-             temp = (distance(iter,jter) / r_zero) - 1.0D0
-             temp = temp * 2.0D0*(-q_ij)
-             temp = (eta**2)*DEXP(temp)
-             temp_sum = temp_sum + temp
-          END DO
-          energy_array(iter) = -DSQRT(temp_sum)
-        END DO
-
-        END SUBROUTINE indv_gupta_band
         END MODULE basin_hopping
