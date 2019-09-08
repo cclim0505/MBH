@@ -191,6 +191,7 @@
       USE constants             ,ONLY:DBL
       USE coord_grad_ene        ,ONLY:atoms,coord,optim_coord
       USE potential             ,ONLY:calc_energy,calc_gradient
+     &  ,calc_both_ene_grad
       USE array_matrix
 
       CONTAINS
@@ -273,8 +274,11 @@
 !======================================================================
 !     Define the starting values
       CALL mat_2_arr(in_coord,x)
+
+!DEBUG BEGINS==============================================
       PRINT *, 'x values are'
       PRINT *, x
+!DEBUG ENDS==============================================
 
 !======================================================================
 !     Optimiztion loop starts here
@@ -302,12 +306,17 @@
 ! convert x(array) to coord(matrix)
             CALL arr_2_mat(x,temp_coord)
 ! calculate function
-            CALL calc_energy(temp_coord,atoms,f)
+!           CALL calc_energy(temp_coord,atoms,f)
+            
+!======================================================================
+            CALL calc_both_ene_grad(temp_coord,atoms,f,grad)
+!======================================================================
+
 !======================================================================
 !     Call first deriv
 !======================================================================
 ! calculate 1st derivative
-            CALL calc_gradient(temp_coord,grad)
+!           CALL calc_gradient(temp_coord,atoms,grad)
 ! convert grad(matrix) to g(array)
             CALL mat_2_arr(grad,g)
          end if

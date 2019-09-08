@@ -7,6 +7,7 @@
      &    ,coord,optim_coord,old_coord,lowest_coord
      &    ,energy,old_energy,lowest_energy,atoms
      &    , print_coord,print_coord_xyz,print_lowest_coord
+     &    , gradient
         USE random_coord        ,ONLY: set_random_coord
         USE optimization        ,ONLY: local_minim
         USE basin_hopping       ,ONLY: bhop_move
@@ -14,6 +15,12 @@
         USE inertia             ,ONLY: calc_inertia_tensor
      &    ,print_inertia_tensor 
         USE potential           ,ONLY: calc_energy
+
+
+!DEBUG BEGINS==============================================
+        USE dftb                ,ONLY: coord_2_gen,dftb_energy
+     &    ,dftb_gradient, dftb_both_ene_grad
+!DEBUG ENDS==============================================
 
         IMPLICIT NONE
         INTEGER                 :: iter
@@ -78,5 +85,17 @@
 
         CALL calc_inertia_tensor
         CALL print_inertia_tensor
+
+!DEBUG BEGINS==============================================
+!       CALL coord_2_gen(coord,atoms)
+        CALL dftb_both_ene_grad(coord,atoms,energy,gradient)
+!       CALL dftb_energy(coord,atoms,energy) 
+!       PRINT *, 'dftb energy is', energy
+!       CALL dftb_gradient(coord,atoms,gradient)
+!       PRINT *, 'dftb gradient is' 
+!       PRINT *, gradient
+
+
+!DEBUG ENDS==============================================
 
         END PROGRAM main

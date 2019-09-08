@@ -32,6 +32,18 @@
 
         END SUBROUTINE read_gupta_param
 
+        SUBROUTINE gupta_both_ene_grad(x_coord,natoms,ene,grad)
+        IMPLICIT NONE
+        REAl(KIND=DBL),DIMENSION(:,:),INTENT(IN)  :: x_coord
+        INTEGER,INTENT(IN)                        :: natoms
+        REAL(KIND=DBL),INTENT(OUT)                :: ene
+        REAl(KIND=DBL),DIMENSION(:,:),INTENT(OUT) :: grad
+
+        CALL gupta_energy(x_coord,natoms,ene)
+        CALL gupta_gradient(x_coord,grad)
+
+        END SUBROUTINE gupta_both_ene_grad
+
         SUBROUTINE calc_distance(x_coord)
 ! calculate the distances between all atomic pairs
         IMPLICIT NONE

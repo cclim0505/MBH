@@ -7,6 +7,7 @@ DRIVER = main.f
 CONSTANTS = constants.f
 CGE = coord_grad_ene.f
 GUPTA = gupta.f
+DFTB = ene_dftb.f
 RANDOM = random_coord.f
 POTENTIAL = potential.f
 BASIN = basin_hopping.f
@@ -34,8 +35,8 @@ DRIVER_OPEN =
 all :  main
 
 
-main : $(CONSTANTS) $(CGE) $(GUPTA) $(RANDOM) $(POTENTIAL) $(BASIN) $(MONTE) $(INERTIA) $(INITIALISE) $(ARRMAT) $(PARAM) $(GRAD) $(BLAS) $(LINPACK) $(TIMER) $(LBFGS) $(OPTIM) $(DRIVER) 
-	$(FC) $(FFLAGS) $(CONSTANTS) $(CGE) $(GUPTA) $(RANDOM) $(POTENTIAL) $(BASIN) $(MONTE) $(INERTIA) $(INITIALISE) $(ARRMAT) $(PARAM) $(GRAD) $(BLAS) $(LINPACK) $(TIMER) $(LBFGS) $(OPTIM) $(DRIVER)  -o run.out
+main : $(CONSTANTS) $(CGE) $(GUPTA) $(DFTB) $(RANDOM) $(POTENTIAL) $(BASIN) $(MONTE) $(INERTIA) $(INITIALISE) $(ARRMAT) $(PARAM) $(GRAD) $(BLAS) $(LINPACK) $(TIMER) $(LBFGS) $(OPTIM) $(DRIVER) 
+	$(FC) $(FFLAGS) $(CONSTANTS) $(CGE) $(GUPTA) $(DFTB) $(RANDOM) $(POTENTIAL) $(BASIN) $(MONTE) $(INERTIA) $(INITIALISE) $(ARRMAT) $(PARAM) $(GRAD) $(BLAS) $(LINPACK) $(TIMER) $(LBFGS) $(OPTIM) $(DRIVER)  -o run.out
 
 
 

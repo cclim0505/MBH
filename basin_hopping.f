@@ -141,7 +141,7 @@
         INTEGER,INTENT(OUT)              :: highest_index
         REAL(KIND=DBL),DIMENSION(atoms)  :: energy_array
         REAL(KIND=DBL)                   :: highest_ene,lowest_ene
-        INTEGER                          :: iter
+!       INTEGER                          :: iter              ! DEBUG use only 
 
         energy_array = 0.0D0
         CALL calc_indv_energy(coord,atoms,energy_array)
