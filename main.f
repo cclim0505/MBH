@@ -7,9 +7,11 @@
      &    ,coord,optim_coord,old_coord,lowest_coord
      &    ,energy,old_energy,lowest_energy,atoms
      &    , print_coord,print_coord_xyz,print_lowest_coord
+     &    , print_local_coord
      &    , gradient
         USE random_coord        ,ONLY: set_random_coord
         USE optimization        ,ONLY: local_minim
+     &    , optim_ierr
         USE basin_hopping       ,ONLY: bhop_move
         USE monte               ,ONLY: monte_carlo
         USE inertia             ,ONLY: calc_inertia_tensor
@@ -32,11 +34,12 @@
         CALL allocate_coord_gradient
 
 !DEBUG BEGINS==============================================
-        CALL read_coord
-        CALL calc_energy(coord,atoms,energy)
-        PRINT *, 'ground_state is ', energy
+!       CALL read_coord
+!       CALL calc_energy(coord,atoms,energy)
+!       PRINT *, 'ground_state is ', energy
 !       CALL print_coord_xyz('3input.xyz')
 !DEBUG ENDS==============================================
+
 
         CALL set_random_coord
 
@@ -65,14 +68,20 @@
           ! IF condition to change MC, and basin hopping parameters  
           CALL bhop_move
           CALL local_minim
-          coord = optim_coord
-          CALL calc_energy(coord,atoms,energy)
+          IF (optim_ierr == 0) THEN
+            coord = optim_coord
+            CALL calc_energy(coord,atoms,energy)
 
 !DEBUG BEGINS==============================================
 !         CALL print_coord_xyz('2serial.xyz')
 !DEBUG ENDS==============================================
 
-          CALL monte_carlo
+            CALL print_local_coord
+            CALL monte_carlo
+          ELSE 
+            coord = old_coord 
+            energy = old_energy
+          END IF
 
         END DO
 

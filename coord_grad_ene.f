@@ -125,6 +125,25 @@
 
         END SUBROUTINE print_lowest_coord
 
+        SUBROUTINE print_local_coord
+        IMPLICIT NONE
+        CHARACTER(LEN=16) :: filename='7local_coord.xyz'
+        INTEGER           :: iter
+        INTEGER           :: f_out
+
+        OPEN(NEWUNIT=f_out,FILE=TRIM(filename),ACCESS='append')
+
+        WRITE(f_out,*) atoms
+        WRITE(f_out,*) energy
+        DO iter=1,atoms
+          WRITE(f_out,*) 'Au',coord(1,iter),
+     &      coord(2,iter) ,coord(3,iter)
+        END DO
+
+        CLOSE(f_out)
+
+        END SUBROUTINE print_local_coord
+
         SUBROUTINE calc_centroid(x_coord,centroid)
 ! calculate centroid for set_coord_to_origin
         IMPLICIT NONE

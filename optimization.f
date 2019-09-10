@@ -190,17 +190,71 @@
       MODULE optimization
       USE constants             ,ONLY:DBL
       USE coord_grad_ene        ,ONLY:atoms,coord,optim_coord
-      USE potential             ,ONLY:calc_energy,calc_gradient
+      USE potential             ,ONLY:potential_type
+     &  ,calc_energy,calc_gradient
      &  ,calc_both_ene_grad
       USE array_matrix
 
+      INTEGER           :: optim_ierr
+
       CONTAINS
+
       SUBROUTINE local_minim
       IMPLICIT NONE
 
-      CALL optim_lbfgs(coord,optim_coord)
+      optim_ierr = 0
+
+      IF (potential_type == 1 ) THEN
+        CALL optim_lbfgs(coord,optim_coord)
+      ELSE IF (potential_type == 2) THEN
+        CALL optim_dftb_lbfgs(coord,optim_coord)
+      END IF
 
       END SUBROUTINE local_minim
+
+      SUBROUTINE optim_dftb_lbfgs(in_coord,out_coord)
+      USE dftb          ,ONLY:coord_2_gen
+      IMPLICIT NONE
+      REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN) :: in_coord
+      REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE,INTENT(OUT):: out_coord
+      INTEGER           :: natoms
+
+      IF (ALLOCATED(out_coord)) DEALLOCATE(out_coord)
+      ALLOCATE ( out_coord(SIZE(in_coord,1) ,SIZE(in_coord,2)) )
+
+      natoms = SIZE(in_coord,2)
+
+      CALL coord_2_gen(in_coord,natoms)
+      CALL EXECUTE_COMMAND_LINE('dftb+ > dftb.log')
+      CALL read_dftb_optim_coord(natoms,out_coord)
+
+      IF (optim_ierr /= 0) out_coord = 0.0D0
+      
+      ! copy dftb output coordinates into out_coord
+
+      END SUBROUTINE optim_dftb_lbfgs
+
+      SUBROUTINE read_dftb_optim_coord(natoms,x_coord)
+      IMPLICIT NONE
+      INTEGER,INTENT(IN)           :: natoms
+      REAL(KIND=DBL),DIMENSION(:,:),INTENT(INOUT) :: x_coord
+      INTEGER           :: f_geo
+      INTEGER           :: iter
+      CHARACTER(LEN=11) :: geo_file='geo_end.xyz'
+      CHARACTER(LEN=1)  :: dummy
+
+      OPEN(NEWUNIT=f_geo,FILE=geo_file,STATUS='old')
+      READ(f_geo,*,IOSTAT=optim_ierr)
+      IF (optim_ierr /= 0) RETURN
+      READ(f_geo,*)
+      DO iter=1,natoms
+        READ(f_geo,*) dummy, x_coord(1,iter), x_coord(2,iter),
+     &    x_coord(3,iter)
+      END DO
+      CLOSE(f_geo)
+
+      END SUBROUTINE read_dftb_optim_coord
+
 
       SUBROUTINE optim_lbfgs(in_coord,out_coord)
 
