@@ -1,13 +1,12 @@
         MODULE initialise
 
-        CHARACTER(2)        :: material
         INTEGER             :: total_mc_step
         
         CONTAINS
 
         SUBROUTINE read_session
 ! read session simulation parameters
-        USE coord_grad_ene,     ONLY: atoms,in_file
+        USE coord_grad_ene,     ONLY: atoms,material,in_file
         USE potential,          ONLY: potential_type
         IMPLICIT NONE
         CHARACTER(14)   :: session_file='session_in.dat'

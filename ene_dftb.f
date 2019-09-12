@@ -96,6 +96,7 @@
         END SUBROUTINE dftb_gradient
 
         SUBROUTINE coord_2_gen(x_coord,natoms)
+        USE coord_grad_ene          ,ONLY: material
         IMPLICIT NONE
         REAl(KIND=DBL),DIMENSION(:,:),INTENT(IN)  :: x_coord
         INTEGER,INTENT(IN)   :: natoms
@@ -107,7 +108,7 @@
         OPEN(NEWUNIT=f_gen, FILE=gen_file, STATUS='replace')
 
         WRITE (f_gen,*) natoms,"   " , geometry
-        WRITE (f_gen,*) 'Au'
+        WRITE (f_gen,*) material
 
         DO iter=1,natoms
            WRITE (f_gen,*) iter, 1, x_coord(1,iter), x_coord(2,iter),

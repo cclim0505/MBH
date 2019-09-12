@@ -1,6 +1,7 @@
         MODULE coord_grad_ene
         USE constants   ,ONLY:DBL
         INTEGER                                    :: atoms
+        CHARACTER(2)                               :: material
 
         REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE  :: coord
         REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE  :: old_coord
@@ -98,7 +99,7 @@
         WRITE(f_out,*) atoms
         WRITE(f_out,*) 
         DO iter=1,atoms
-          WRITE(f_out,*) 'Au',coord(1,iter),coord(2,iter)
+          WRITE(f_out,*) material,coord(1,iter),coord(2,iter)
      $      ,coord(3,iter)
         END DO
 
@@ -117,7 +118,7 @@
         WRITE(f_out,*) atoms
         WRITE(f_out,*) lowest_energy
         DO iter=1,atoms
-          WRITE(f_out,*) 'Au',lowest_coord(1,iter),
+          WRITE(f_out,*) material,lowest_coord(1,iter),
      &      lowest_coord(2,iter) ,lowest_coord(3,iter)
         END DO
 
@@ -136,7 +137,7 @@
         WRITE(f_out,*) atoms
         WRITE(f_out,*) energy
         DO iter=1,atoms
-          WRITE(f_out,*) 'Au',coord(1,iter),
+          WRITE(f_out,*) material,coord(1,iter),
      &      coord(2,iter) ,coord(3,iter)
         END DO
 
