@@ -5,6 +5,7 @@
         REAL(KIND=DBL),PARAMETER        :: au_r0 = 2.884
         REAL(KIND=DBL),PARAMETER        :: au_e0 = 27.21138624598853
         REAL(KIND=DBL),PARAMETER        :: au_f0 = 51.42208619083232
+        CHARACTER(LEN=18)          :: run_dftb = 'dftb+19 > dftb.log'
 
         CONTAINS
 
@@ -65,7 +66,7 @@
         REAl(KIND=DBL),DIMENSION(:,:),INTENT(OUT) :: grad
 
         CALL coord_2_gen(x_coord,natoms)
-        CALL EXECUTE_COMMAND_LINE('dftb+ > dftb.log')
+        CALL EXECUTE_COMMAND_LINE(run_dftb)
         CALL read_dftb_energy(ene)
         CALL read_dftb_gradient(natoms,grad)
 
@@ -78,7 +79,7 @@
         REAL(KIND=DBL),INTENT(OUT)               :: ene
 
         CALL coord_2_gen(x_coord,natoms)
-        CALL EXECUTE_COMMAND_LINE('dftb+ > dftb.log')
+        CALL EXECUTE_COMMAND_LINE(run_dftb)
         CALL read_dftb_energy(ene)
 
         END SUBROUTINE dftb_energy
@@ -90,7 +91,7 @@
         REAl(KIND=DBL),DIMENSION(:,:),INTENT(OUT) :: grad
 
         CALL coord_2_gen(x_coord,natoms)
-        CALL EXECUTE_COMMAND_LINE('dftb+ > dftb.log')
+        CALL EXECUTE_COMMAND_LINE(run_dftb)
         CALL read_dftb_gradient(natoms,grad)
 
         END SUBROUTINE dftb_gradient

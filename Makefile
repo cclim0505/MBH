@@ -1,8 +1,15 @@
-FC = gfortran
+### gfortran compiler options
+#FC = gfortran
+#FFLAGS = -O -Wall -fbounds-check -g -Wno-uninitialized 
 
-FFLAGS = -O -Wall -fbounds-check -g -Wno-uninitialized 
+### mpifortran compilre options
+FC = mpifort
+FFLAGS = 
 
 DRIVER = main.f
+
+SIMULATION = simulation.f
+MPIVAR = mpi_var.f
 
 CONSTANTS = constants.f
 CGE = coord_grad_ene.f
@@ -35,8 +42,8 @@ DRIVER_OPEN =
 all :  main
 
 
-main : $(CONSTANTS) $(CGE) $(GUPTA) $(DFTB) $(RANDOM) $(POTENTIAL) $(BASIN) $(MONTE) $(INERTIA) $(INITIALISE) $(ARRMAT) $(PARAM) $(GRAD) $(BLAS) $(LINPACK) $(TIMER) $(LBFGS) $(OPTIM) $(DRIVER) 
-	$(FC) $(FFLAGS) $(CONSTANTS) $(CGE) $(GUPTA) $(DFTB) $(RANDOM) $(POTENTIAL) $(BASIN) $(MONTE) $(INERTIA) $(INITIALISE) $(ARRMAT) $(PARAM) $(GRAD) $(BLAS) $(LINPACK) $(TIMER) $(LBFGS) $(OPTIM) $(DRIVER)  -o run.out
+main : $(CONSTANTS) $(MPIVAR) $(CGE) $(GUPTA) $(DFTB) $(RANDOM) $(POTENTIAL) $(BASIN) $(MONTE) $(INERTIA) $(INITIALISE) $(ARRMAT) $(PARAM) $(GRAD) $(BLAS) $(LINPACK) $(TIMER) $(LBFGS) $(OPTIM) $(SIMULATION) $(DRIVER) 
+	$(FC) $(FFLAGS) $(CONSTANTS) $(MPIVAR) $(CGE) $(GUPTA) $(DFTB) $(RANDOM) $(POTENTIAL) $(BASIN) $(MONTE) $(INERTIA) $(INITIALISE) $(ARRMAT) $(PARAM) $(GRAD) $(BLAS) $(LINPACK) $(TIMER) $(LBFGS) $(OPTIM) $(SIMULATION) $(DRIVER)  -o run.out
 
 
 

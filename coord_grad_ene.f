@@ -74,6 +74,17 @@
         PRINT *, '%%%%%%%%%%%%%%%%%%'
         END SUBROUTINE print_coord
 
+        SUBROUTINE print_lowest_ene
+        IMPLICIT NONE 
+        CHARACTER(LEN=20)      :: filename='00_lowest_energy.dat'
+        INTEGER :: f_out
+
+        OPEN(NEWUNIT=f_out,FILE=filename,STATUS='replace')
+        WRITE(f_out,*) lowest_energy
+        CLOSE(f_out)
+
+        END SUBROUTINE print_lowest_ene
+
         SUBROUTINE print_ene_dat(filename)
         IMPLICIT NONE 
         CHARACTER(LEN=*),INTENT(IN)       :: filename
@@ -107,9 +118,9 @@
 
         END SUBROUTINE print_coord_xyz
 
-        SUBROUTINE print_lowest_coord
+        SUBROUTINE print_update_lowest_coord
         IMPLICIT NONE
-        CHARACTER(LEN=18) :: filename='6lowest_coord.xyz'
+        CHARACTER(LEN=20) :: filename='01_lowest_coords.xyz'
         INTEGER           :: iter
         INTEGER           :: f_out
 
@@ -124,11 +135,30 @@
 
         CLOSE(f_out)
 
+        END SUBROUTINE print_update_lowest_coord
+
+        SUBROUTINE print_lowest_coord
+        IMPLICIT NONE
+        CHARACTER(LEN=19) :: filename='00_lowest_coord.xyz'
+        INTEGER           :: iter
+        INTEGER           :: f_out
+
+        OPEN(NEWUNIT=f_out,FILE=TRIM(filename),STATUS='replace')
+
+        WRITE(f_out,*) atoms
+        WRITE(f_out,*) lowest_energy
+        DO iter=1,atoms
+          WRITE(f_out,*) material,lowest_coord(1,iter),
+     &      lowest_coord(2,iter) ,lowest_coord(3,iter)
+        END DO
+
+        CLOSE(f_out)
+
         END SUBROUTINE print_lowest_coord
 
         SUBROUTINE print_local_coord
         IMPLICIT NONE
-        CHARACTER(LEN=16) :: filename='7local_coord.xyz'
+        CHARACTER(LEN=19) :: filename='02_local_coords.xyz'
         INTEGER           :: iter
         INTEGER           :: f_out
 

@@ -213,7 +213,7 @@
       END SUBROUTINE local_minim
 
       SUBROUTINE optim_dftb_lbfgs(in_coord,out_coord)
-      USE dftb          ,ONLY:coord_2_gen
+      USE dftb          ,ONLY:coord_2_gen,run_dftb
       IMPLICIT NONE
       REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN) :: in_coord
       REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE,INTENT(OUT):: out_coord
@@ -225,7 +225,7 @@
       natoms = SIZE(in_coord,2)
 
       CALL coord_2_gen(in_coord,natoms)
-      CALL EXECUTE_COMMAND_LINE('dftb+ > dftb.log')
+      CALL EXECUTE_COMMAND_LINE(run_dftb)
       CALL read_dftb_optim_coord(natoms,out_coord)
 
       IF (optim_ierr /= 0) out_coord = 0.0D0

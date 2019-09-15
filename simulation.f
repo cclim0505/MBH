@@ -19,6 +19,7 @@
      &    ,coord,optim_coord,old_coord,lowest_coord
      &    ,energy,old_energy,lowest_energy,atoms
      &    , print_coord,print_coord_xyz,print_lowest_coord
+     &    , print_lowest_ene 
      &    , print_local_coord
      &    , gradient
         USE random_coord        ,ONLY: set_random_coord
@@ -32,8 +33,8 @@
 
 
 !DEBUG BEGINS==============================================
-        USE dftb                ,ONLY: coord_2_gen,dftb_energy
-     &    ,dftb_gradient, dftb_both_ene_grad
+!       USE dftb                ,ONLY: coord_2_gen,dftb_energy
+!    &    ,dftb_gradient, dftb_both_ene_grad
 !DEBUG ENDS==============================================
 
         IMPLICIT NONE
@@ -91,15 +92,19 @@
 
         END DO
 
+        CALL print_lowest_coord         ! output lowest coord and energy
+        CALL print_lowest_ene           ! output lowest energy
+
+!DEBUG BEGINS==============================================
+        CALL calc_inertia_tensor
+        CALL print_inertia_tensor
+!DEBUG ENDS==============================================
+
 !DEBUG BEGINS==============================================
 !       PRINT *, 'lowest energy is ', lowest_energy
 !       CALL print_coord_xyz('4MBH_result.xyz')
 !DEBUG ENDS==============================================
 
-        CALL print_lowest_coord         ! output lowest coord and energy
-
-        CALL calc_inertia_tensor
-        CALL print_inertia_tensor
 
 !DEBUG BEGINS==============================================
 !       CALL coord_2_gen(coord,atoms)

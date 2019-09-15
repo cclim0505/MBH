@@ -50,6 +50,7 @@
         END FUNCTION sphere_radius
 
         SUBROUTINE init_random_coord(natoms,x_coord)
+        USE mpi_var             ,ONLY: myid
 ! initialise random coordinates
         IMPLICIT NONE
         INTEGER,INTENT(IN)                             :: natoms
@@ -57,6 +58,12 @@
         REAL(KIND=SGL),DIMENSION(natoms,3)              :: random_array
         INTEGER         :: iter
 
+        INTEGER,DIMENSION(1)            :: seed
+        REAL                            :: real_seed
+
+        CALL CPU_TIME(real_seed)
+        seed = INT(1E8*real_seed)
+        CALL RANDOM_SEED(PUT=seed+myid)
         CALL RANDOM_NUMBER(random_array)
 
         DO iter=1,natoms

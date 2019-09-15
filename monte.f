@@ -3,7 +3,7 @@
         USE coord_grad_ene      ,ONLY: energy,old_energy 
      &    ,lowest_energy
      &    ,coord,old_coord,lowest_coord
-     &    ,print_ene_dat,print_lowest_coord
+     &    ,print_ene_dat,print_update_lowest_coord
         REAL(KIND=SGL)        :: tempera=0.80000
         REAL(KIND=SGL)        :: acceptance_ratio=0.50000
 
@@ -49,7 +49,7 @@
           old_coord = coord
 
 !DEBUG BEGINS==============================================
-          CALL print_ene_dat('5lowest_ene.dat')
+          CALL print_ene_dat('03_lowest_energies.dat')
 !DEBUG ENDS==============================================
 
         ELSE
@@ -65,7 +65,7 @@
         IF (energy < lowest_energy) THEN
           lowest_energy = energy
           lowest_coord = coord
-          CALL print_lowest_coord
+          CALL print_update_lowest_coord
         END IF
 
         END SUBROUTINE assign_lowest_energy_coord
