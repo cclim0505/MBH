@@ -61,6 +61,37 @@
 
         END SUBROUTINE read_coord
 
+        SUBROUTINE printout_single_coord(f_num,x_coord)
+        IMPLICIT NONE
+        INTEGER,INTENT(IN)                           :: f_num
+        REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN)     :: x_coord
+        INTEGER                                      :: iter
+
+        WRITE(f_num,*) SIZE(x_coord,2)
+        WRITE(f_num,*)
+        DO iter=1,SIZE(x_coord,2)
+          WRITE(f_num,*) material ,x_coord(1,iter),x_coord(2,iter)
+     &      ,x_coord(3,iter)
+        END DO
+
+        END SUBROUTINE printout_single_coord
+
+        SUBROUTINE read_single_coord(f_num,x_coord)
+        IMPLICIT NONE
+        INTEGER,INTENT(IN)                           :: f_num
+        REAL(KIND=DBL),DIMENSION(:,:),INTENT(INOUT)  :: x_coord
+        INTEGER                                      :: iter
+        CHARACTER(len=1)                             :: dummy
+
+        READ(f_num,*)
+        READ(f_num,*)
+        DO iter=1,SIZE(x_coord,2)
+          READ(f_num,*) dummy,x_coord(1,iter),x_coord(2,iter)
+     &      ,x_coord(3,iter)
+        END DO
+
+        END SUBROUTINE read_single_coord
+
         SUBROUTINE print_coord
 ! print out coordinates for checking
         IMPLICIT NONE
@@ -98,6 +129,29 @@
         counter = counter + 1
 
         END SUBROUTINE print_ene_dat
+
+        SUBROUTINE printout_xyz(filename,x_coord)
+        IMPLICIT NONE
+        CHARACTER(LEN=*),INTENT(IN)                 :: filename
+        REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN)    :: x_coord
+        INTEGER :: natoms
+        INTEGER :: iter
+        INTEGER :: f_out
+
+        natoms = SIZE(x_coord,2)
+
+        OPEN(NEWUNIT=f_out,FILE=TRIM(filename),ACCESS='append')
+
+        WRITE(f_out,*) natoms
+        WRITE(f_out,*) 
+        DO iter=1,natoms
+          WRITE(f_out,*) material,x_coord(1,iter),x_coord(2,iter)
+     $      ,x_coord(3,iter)
+        END DO
+
+        CLOSE(f_out)
+
+        END SUBROUTINE printout_xyz
 
         SUBROUTINE print_coord_xyz(filename)
         IMPLICIT NONE
@@ -192,8 +246,8 @@
         centroid(:) = centroid(:) / REAL(atoms)
 
 !DEBUG==============================================
-        PRINT *, 'centroid'
-        PRINT *, centroid(1), centroid(2), centroid(3)
+!       PRINT *, 'centroid'
+!       PRINT *, centroid(1), centroid(2), centroid(3)
 !DEBUG==============================================
 
         END SUBROUTINE calc_centroid

@@ -4,7 +4,7 @@
 
 ### mpifortran compilre options
 FC = mpifort
-FFLAGS = 
+FFLAGS = -llapack 
 
 DRIVER = main.f
 
@@ -20,6 +20,7 @@ POTENTIAL = potential.f
 BASIN = basin_hopping.f
 MONTE = monte.f
 INERTIA = inertia.f
+SPLICE = cut_splice.f
 
 PARAM = param.f		#module to compliment senior's code
 GRAD = grad.f		#gradient subroutine developed by senior
@@ -42,8 +43,8 @@ DRIVER_OPEN =
 all :  main
 
 
-main : $(CONSTANTS) $(MPIVAR) $(CGE) $(GUPTA) $(DFTB) $(RANDOM) $(POTENTIAL) $(BASIN) $(MONTE) $(INERTIA) $(INITIALISE) $(ARRMAT) $(PARAM) $(GRAD) $(BLAS) $(LINPACK) $(TIMER) $(LBFGS) $(OPTIM) $(SIMULATION) $(DRIVER) 
-	$(FC) $(FFLAGS) $(CONSTANTS) $(MPIVAR) $(CGE) $(GUPTA) $(DFTB) $(RANDOM) $(POTENTIAL) $(BASIN) $(MONTE) $(INERTIA) $(INITIALISE) $(ARRMAT) $(PARAM) $(GRAD) $(BLAS) $(LINPACK) $(TIMER) $(LBFGS) $(OPTIM) $(SIMULATION) $(DRIVER)  -o run.out
+main : $(CONSTANTS) $(MPIVAR) $(CGE) $(GUPTA) $(DFTB) $(RANDOM) $(POTENTIAL) $(BASIN) $(MONTE) $(INERTIA) $(SPLICE) $(INITIALISE) $(ARRMAT) $(PARAM) $(GRAD) $(BLAS) $(LINPACK) $(TIMER) $(LBFGS) $(OPTIM) $(SIMULATION) $(DRIVER) 
+	$(FC) $(FFLAGS) $(CONSTANTS) $(MPIVAR) $(CGE) $(GUPTA) $(DFTB) $(RANDOM) $(POTENTIAL) $(BASIN) $(MONTE) $(INERTIA) $(SPLICE) $(INITIALISE) $(ARRMAT) $(PARAM) $(GRAD) $(BLAS) $(LINPACK) $(TIMER) $(LBFGS) $(OPTIM) $(SIMULATION) $(DRIVER)  -o run.out
 
 
 

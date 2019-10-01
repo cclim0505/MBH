@@ -1,6 +1,8 @@
         PROGRAM main
         USE simulation          ,ONLY:simulate_BH
      &    ,set_up_universal
+     &    ,test_eig_rotate
+     &    ,test_cut_splice
 
 !==============================================================
 !       MPI OPTIONS
@@ -24,7 +26,11 @@
         CALL ch_work_dir
 !==============================================================
 
-        CALL simulate_BH
+!       CALL test_eig_rotate
+
+        CALL test_cut_splice
+
+!       CALL simulate_BH
 
 
 !==============================================================
