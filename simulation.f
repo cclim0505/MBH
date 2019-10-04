@@ -12,22 +12,24 @@
 
         END SUBROUTINE set_up_universal
 
-        SUBROUTINE test_rotate_then_cut
+        SUBROUTINE test_align_then_cut
         IMPLICIT NONE
-        END SUBROUTINE test_rotate_then_cut
+        END SUBROUTINE test_align_then_cut
 
         SUBROUTINE test_cut_splice
-        USE constants           ,ONLY:DBL
+        USE constants           ,ONLY:DBL,PI
         USE coord_grad_ene      ,ONLY:coord,atoms
      &    ,read_single_coord
+     &    ,printout_xyz
         USE cut_splice          ,ONLY:get_furthest_atom
      &    ,calc_distance_from_furthest
      &    ,cut_cluster,init_upper_lower_cut
+     &    ,rotate_upperlower_cut
         IMPLICIT NONE
         REAL(KIND=DBL),DIMENSION(:),ALLOCATABLE :: lengths
-        CHARACTER(LEN=22)       :: input_file='eig_xyz_input.xyz' 
+        CHARACTER(LEN=22)       :: input_file='eig_222_input.xyz' 
         INTEGER                 :: f_in
-        INTEGER                 :: iter, loop_end=40
+        INTEGER                 :: iter, loop_end=15
         INTEGER                 :: furthest
         INTEGER                 :: cut_point
         REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE
@@ -49,13 +51,21 @@
           ALLOCATE(upper_cut(3,cut_point))
           ALLOCATE(lower_cut(3,atoms-cut_point))
           CALL cut_cluster(coord,cut_point,upper_cut,lower_cut)
+          CALL rotate_upperlower_cut(upper_cut,lower_cut,0.5*PI,.TRUE.)
+
+!DEBUG BEGINS==============================================
+          CALL printout_xyz('rotxc_coord.xyz',coord)
+          CALL printout_xyz('rotuppercut.xyz',upper_cut)
+          CALL printout_xyz('rotlowercut.xyz',lower_cut)
+!DEBUG ENDS==============================================
         END DO
 
         END SUBROUTINE test_cut_splice
 
         SUBROUTINE test_eig_rotate
         USE constants           ,ONLY:DBL
-        USE coord_grad_ene      ,ONLY:coord,read_single_coord
+        USE coord_grad_ene      ,ONLY:coord,atoms
+     &    ,read_single_coord
      &    ,print_coord, printout_single_coord
      &    ,set_coord_to_origin
         USE inertia             ,ONLY: calc_inertia_tensor
@@ -65,8 +75,12 @@
      &    ,diag_tensor, print_matrix
      &    ,eig_rotate, realign_to_zaxes, realign_eig_vec
      &    ,printout_single_eigs
+        USE cut_splice          ,ONLY:get_furthest_atom
+     &    ,calc_distance_from_furthest
+     &    ,cut_cluster,init_upper_lower_cut
+     &    ,rotate_upperlower_cut
         IMPLICIT NONE
-        CHARACTER(LEN=22)       :: input_file='eig_xyz_input.xyz' 
+        CHARACTER(LEN=22)       :: input_file='eig_222_input.xyz' 
         CHARACTER(LEN=22)       :: output_file='rotate_output.xyz' 
         CHARACTER(LEN=22)       :: eigvec_file='eigvec.dat' 
         CHARACTER(LEN=22)       :: orivec_file='orivec.dat' 
@@ -74,11 +88,24 @@
         INTEGER                 :: f_out
         INTEGER                 :: f_eig
         INTEGER                 :: f_ori
-        INTEGER                 :: iter, loop_end=40
+        INTEGER                 :: iter, loop_end=15
 
         REAL(KIND=DBL),DIMENSION(3,3)   :: temp_matrix
         REAL(KIND=DBL),DIMENSION(3,3)   :: rotation_matrix
         REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE   :: temp_coord
+
+!===============================================================
+! CUT AND SPLICE VARIABLES
+        REAL(KIND=DBL),DIMENSION(:),ALLOCATABLE :: lengths
+        INTEGER                 :: furthest
+        INTEGER                 :: cut_point
+        REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE
+     &    :: upper_cut, lower_cut
+!===============================================================
+
+        IF (ALLOCATED(lengths))  DEALLOCATE(lengths)
+        ALLOCATE(lengths(atoms))
+
 
         IF (ALLOCATED(temp_coord)) DEALLOCATE(temp_coord)
         ALLOCATE(temp_coord(SIZE(coord,1),SIZE(coord,2)))
@@ -106,11 +133,12 @@
 !         CALL realign_eig_vec
 
 !=============================================================================
-!         rotation_matrix = TRANSPOSE(eig_vec)
-!         temp_coord = MATMUL(rotation_matrix,coord)
+          rotation_matrix = TRANSPOSE(eig_vec)
+          temp_coord = MATMUL(rotation_matrix,coord)
 !         eig_vec = MATMUL(rotation_matrix,eig_vec)
 
-!         CALL printout_single_coord(f_out,temp_coord)
+          CALL printout_single_coord(f_out,temp_coord)
+          coord = temp_coord
 !         CALL printout_single_eigs(f_eig)
 
 !         CALL calc_inertia_tensor(temp_coord)
@@ -118,9 +146,19 @@
 !         CALL printout_single_eigs(f_eig)
 !=============================================================================
 
-          CALL diag_tensor(inertia_tensor,eig_vec,temp_matrix)
-          CALL print_matrix('temp matrix',temp_matrix)
+!         CALL diag_tensor(inertia_tensor,eig_vec,temp_matrix)
+!         CALL print_matrix('temp matrix',temp_matrix)
 !         CALL calc_tensor_eig(temp_matrix,eig_val,eig_vec)
+!=============================================================================
+!         CUT AND SPLICE TEST HERE
+          CALL get_furthest_atom(coord,furthest)
+          CALL calc_distance_from_furthest(furthest,coord,lengths)
+          CALL init_upper_lower_cut(coord,cut_point)
+          IF (ALLOCATED(upper_cut)) DEALLOCATE(upper_cut)
+          IF (ALLOCATED(lower_cut)) DEALLOCATE(lower_cut)
+          ALLOCATE(upper_cut(3,cut_point))
+          ALLOCATE(lower_cut(3,atoms-cut_point))
+          CALL cut_cluster(coord,cut_point,upper_cut,lower_cut)
 
 
 !=============================================================================
@@ -136,7 +174,7 @@
 
         SUBROUTINE simulate_BH
         USE constants           ,ONLY: DBL
-        USE initialise          ,ONLY: total_mc_step
+        USE initialise          ,ONLY: total_mc_step,check_mc_step
         USE coord_grad_ene      ,ONLY: read_atoms,read_coord 
      &    ,coord,optim_coord,old_coord,lowest_coord
      &    ,energy,old_energy,lowest_energy,atoms
@@ -211,6 +249,8 @@
             coord = old_coord 
             energy = old_energy
           END IF
+
+          CALL check_mc_step(iter)
 
         END DO
 

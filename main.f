@@ -28,9 +28,9 @@
 
 !       CALL test_eig_rotate
 
-        CALL test_cut_splice
+!       CALL test_cut_splice
 
-!       CALL simulate_BH
+        CALL simulate_BH
 
 
 !==============================================================

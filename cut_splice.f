@@ -4,6 +4,23 @@
      &    ,printout_xyz
         CONTAINS
 
+        SUBROUTINE rotate_upperlower_cut(upper_cut,lower_cut,phi
+     &    ,is_upper)
+        USE inertia             ,ONLY:rotate_anticlock
+        IMPLICIT NONE
+        REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE,INTENT(INOUT) 
+     &    :: upper_cut, lower_cut
+        REAL(KIND=DBL),INTENT(IN)          :: phi
+        LOGICAL,INTENT(IN)                 :: is_upper
+
+        IF (is_upper) THEN
+          CALL rotate_anticlock(1,phi,upper_cut, .TRUE.)
+        ELSE
+          CALL rotate_anticlock(1,phi,lower_cut, .TRUE.)
+        END IF
+
+        END SUBROUTINE rotate_upperlower_cut
+
         SUBROUTINE init_upper_lower_cut(x_coord,cut_point)
         IMPLICIT NONE
         REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN)        :: x_coord

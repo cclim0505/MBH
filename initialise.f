@@ -1,8 +1,27 @@
         MODULE initialise
 
         INTEGER             :: total_mc_step
+        INTEGER,PARAMETER   :: mc_save_step = 10
         
         CONTAINS
+
+        SUBROUTINE check_mc_step(iteration)
+        IMPLICIT NONE
+        INTEGER,INTENT(IN)      :: iteration
+        INTEGER                 :: remainder
+        INTEGER                 :: f_in
+        REAL                    :: rec_time
+        
+        CALL CPU_TIME(rec_time)
+        remainder = MOD(iteration,mc_save_step)
+
+        IF (remainder == 0) THEN
+        OPEN(NEWUNIT=f_in,FILE='mc_steps_taken.dat',ACCESS='append')
+        WRITE(f_in,*) 'MC step:', iteration,'time:', rec_time
+        CLOSE(f_in)
+        END IF
+
+        END SUBROUTINE check_mc_step
 
         SUBROUTINE read_session
 ! read session simulation parameters
