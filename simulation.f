@@ -172,6 +172,16 @@
 
         END SUBROUTINE test_eig_rotate
 
+        SUBROUTINE test_improved_random
+        USE coord_grad_ene        ,ONLY:coord,printout_xyz
+        USE random_coord          ,ONLY:set_random_coord
+        IMPLICIT NONE
+
+        CALL set_random_coord
+        CALL printout_xyz('improved_random.xyz',coord)
+
+        END SUBROUTINE test_improved_random
+
         SUBROUTINE simulate_BH
         USE constants           ,ONLY: DBL
         USE initialise          ,ONLY: total_mc_step,check_mc_step

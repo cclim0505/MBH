@@ -3,6 +3,7 @@
      &    ,set_up_universal
      &    ,test_eig_rotate
      &    ,test_cut_splice
+     &    ,test_improved_random
 
 !==============================================================
 !       MPI OPTIONS
@@ -30,7 +31,9 @@
 
 !       CALL test_cut_splice
 
-        CALL simulate_BH
+        CALL test_improved_random
+
+!       CALL simulate_BH
 
 
 !==============================================================
