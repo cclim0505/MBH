@@ -11,6 +11,7 @@
         CONTAINS
 
         SUBROUTINE calc_both_ene_grad(x_coord,natoms,ene,grad)
+! calculate energy and gradients
         IMPLICIT NONE
         REAl(KIND=DBL),DIMENSION(:,:),INTENT(IN)  :: x_coord
         INTEGER,INTENT(IN)                        :: natoms
@@ -27,6 +28,7 @@
         END SUBROUTINE calc_both_ene_grad
 
         SUBROUTINE calc_energy(x_coord,natoms,ene_pot)
+! calculate energy ONLY
         IMPLICIT NONE
         REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN)    :: x_coord
         INTEGER,INTENT(IN)                          :: natoms
@@ -44,6 +46,7 @@
         END SUBROUTINE calc_energy
 
         SUBROUTINE calc_gradient(x_coord,natoms,g_gradient)
+!calculate gradient only
         IMPLICIT NONE
         REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN)     :: x_coord
         INTEGER,INTENT(IN)                           :: natoms
@@ -60,6 +63,7 @@
         END SUBROUTINE calc_gradient
 
         SUBROUTINE calc_indv_energy(x_coord,natoms,ene_array)
+! calculate energies of individual atoms
         IMPLICIT NONE
         REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN)       :: x_coord
         INTEGER,INTENT(IN)                             :: natoms

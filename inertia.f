@@ -1,12 +1,242 @@
         MODULE inertia
         USE constants          ,ONLY:DBL 
         USE coord_grad_ene     ,ONLY:atoms, coord
+     &    ,set_coord_to_origin
 
         REAL(KIND=DBL),DIMENSION(3,3)   :: inertia_tensor
         REAL(KIND=DBL),DIMENSION(3)     :: eig_val
         REAL(KIND=DBL),DIMENSION(3,3)   :: eig_vec
 
         CONTAINS
+
+        SUBROUTINE realign_principal_axes
+        IMPLICIT NONE
+        CALL set_coord_to_origin(coord)
+        CALL calc_inertia_tensor(coord)
+        CALL calc_tensor_eig(inertia_tensor,eig_val,eig_vec)
+        eig_vec = TRANSPOSE(eig_vec)
+        coord = MATMUL(eig_vec,coord)
+        END SUBROUTINE realign_principal_axes
+
+
+        SUBROUTINE eig_rotate(coord_in, rotation, coord_out)
+        IMPLICIT NONE
+        REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN)   :: coord_in
+        REAL(KIND=DBL),DIMENSION(3,3),INTENT(IN)   :: rotation
+        REAL(KIND=DBL),DIMENSION(:,:)
+     &    ,ALLOCATABLE,INTENT(OUT)  :: coord_out
+
+        IF (ALLOCATED(coord_out)) DEALLOCATE(coord_out)
+        ALLOCATE(coord_out(SIZE(coord_in,1),SIZE(coord_in,2)))
+
+        PRINT *, coord_in
+        PRINT *, rotation
+
+        coord_out = MATMUL(rotation, coord_in)
+
+
+        END SUBROUTINE eig_rotate
+
+        SUBROUTINE print_matrix(text_out,matrix)
+! print matrix for debugging
+        IMPLICIT NONE
+        CHARACTER(LEN=*)        :: text_out
+        REAL(KIND=DBL),DIMENSION(3,3),INTENT(IN)   :: matrix
+        INTEGER         :: iter
+        PRINT *, '================================================'
+        PRINT *, '*****',text_out,'*****'
+        DO iter=1,3
+          PRINT *, matrix(iter,1), matrix(iter,2), matrix(iter,3)
+        END DO
+        PRINT *, '================================================'
+        END SUBROUTINE print_matrix
+
+        SUBROUTINE diag_tensor(tensor_in,vec,tensor_out)
+!diagonalise moment of inertia matrix for debugging and testing
+        IMPLICIT NONE
+        REAL(KIND=DBL),DIMENSION(3,3),INTENT(IN)   :: tensor_in
+        REAL(KIND=DBL),DIMENSION(3,3),INTENT(IN)   :: vec
+        REAL(KIND=DBL),DIMENSION(3,3),INTENT(OUT)  :: tensor_out
+
+        REAL(KIND=DBL),DIMENSION(3,3)   :: trans_vec    ! vec transposed
+        REAL(KIND=DBL),DIMENSION(3,3)   :: temp
+
+        trans_vec =  TRANSPOSE(vec)
+        temp = MATMUL(trans_vec, tensor_in)
+        temp = MATMUL(temp, vec)
+
+!       temp(1,2) = 0.0D0
+!       temp(1,3) = 0.0D0
+!       temp(2,1) = 0.0D0
+!       temp(2,3) = 0.0D0
+!       temp(3,1) = 0.0D0
+!       temp(3,2) = 0.0D0
+
+        tensor_out = temp
+
+        END SUBROUTINE diag_tensor
+
+        SUBROUTINE print_eigs
+! print eigenvalue and eigenvectors for testing and debugging
+        IMPLICIT NONE
+        INTEGER         :: iter
+        PRINT *, 'eigenvales are'
+        PRINT *, eig_val(1), eig_val(2), eig_val(3)
+        PRINT *, 'eigenvectors are'
+        DO iter=1,3
+          PRINT *, eig_vec(iter,1), eig_vec(iter,2), eig_vec(iter,3)
+        END DO
+        END SUBROUTINE print_eigs
+
+        SUBROUTINE printout_single_eigs(f_num)
+! print eigenvalue of a 3x3 matrix for checking and debugging
+        IMPLICIT NONE
+        INTEGER,INTENT(IN)      :: f_num
+        INTEGER,SAVE    :: counter = 0
+        INTEGER         :: iter
+
+        counter = counter + 1
+
+        WRITE(f_num,*) counter
+        WRITE(f_num,*) 
+        DO iter=1,3
+          WRITE(f_num,*)  eig_vec(iter,1), eig_vec(iter,2)
+     &      , eig_vec(iter,3)
+        END DO
+
+
+        END SUBROUTINE printout_single_eigs
+
+
+
+
+        SUBROUTINE calc_tensor_eig(tensor,val,vec)
+! calculate the eigenvalue and eigven vectors of a 3x3 symmetrical matrix
+        IMPLICIT NONE
+        REAL(KIND=DBL),DIMENSION(3,3),INTENT(IN)    :: tensor
+        REAL(KIND=DBL),DIMENSION(3),INTENT(OUT)     :: val      ! array of eigenvalues
+        REAL(KIND=DBL),DIMENSION(3,3),INTENT(OUT)   :: vec      ! matrix of eigenvectors
+
+        INTEGER, PARAMETER             :: lwmax=1000
+        INTEGER                        :: lwork
+        REAl(KIND=4),DIMENSION(3,3)    :: matrix                ! temporary matrix for ssyev call
+        REAl(KIND=4),DIMENSION(3)      :: w
+        REAl(KIND=4),DIMENSION(lwmax)  :: work
+        INTEGER                        :: ssyev_info
+
+        matrix = tensor
+
+        lwork = -1
+        CALL ssyev('V','U', 3, matrix, 
+     &        3, w, work, lwork, ssyev_info ) 
+
+        lwork = MIN(lwmax, INT(work(1)))
+
+!       PRINT *, 'lwork = ', lwork
+
+        CALL ssyev('V','U', 3, matrix, 
+     &        3, w, work, lwork, ssyev_info ) 
+
+        val = w
+        vec = matrix
+
+        END SUBROUTINE calc_tensor_eig
+
+        SUBROUTINE calc_inertia_tensor(x_coord)
+! calculate the moment of inertia tensor of a given coordinate
+        IMPLICIT NONE
+        REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN) :: x_coord
+        REAL(KIND=DBL)          :: diag_xx, diag_yy, diag_zz
+        REAL(KIND=DBL)          :: prod_xy, prod_xz, prod_yz
+
+        CALL calc_diag(1,x_coord,diag_xx)
+        CALL calc_diag(2,x_coord,diag_yy)
+        CALL calc_diag(3,x_coord,diag_zz)
+
+        CALL calc_product(1,2,x_coord,prod_xy)
+        CALL calc_product(1,3,x_coord,prod_xz)
+        CALL calc_product(2,3,x_coord,prod_yz)
+        
+        inertia_tensor(1,1) = diag_xx
+        inertia_tensor(2,2) = diag_yy
+        inertia_tensor(3,3) = diag_zz
+
+        inertia_tensor(1,2) = prod_xy
+        inertia_tensor(2,1) = prod_xy
+
+        inertia_tensor(1,3) = prod_xz
+        inertia_tensor(3,1) = prod_xz
+
+        inertia_tensor(2,3) = prod_yz
+        inertia_tensor(3,2) = prod_yz
+
+        END SUBROUTINE calc_inertia_tensor
+
+        SUBROUTINE print_inertia_tensor
+        IMPLICIT NONE
+        INTEGER         :: iter
+        PRINT *, '=========INERTIA TENSOR========================'
+        DO iter=1,3
+          PRINT *, inertia_tensor(iter,1), inertia_tensor(iter,2)
+     &      ,inertia_tensor(iter,3)
+        END DO
+        PRINT *, '==============================================='
+        END SUBROUTINE print_inertia_tensor
+
+        SUBROUTINE calc_diag(axis,x_coord,diag)
+! calculate the diagonal elements of the moment of inertia tensor
+        IMPLICIT NONE
+        INTEGER,INTENT(IN)              :: axis
+        REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN) :: x_coord
+        REAL(KIND=DBL),INTENT(OUT)      :: diag
+        INTEGER                         :: aindex,bindex
+        REAL(KIND=DBL)              :: temp
+        REAL(KIND=DBL)              :: temp_sum
+        INTEGER         :: iter
+
+        IF (axis == 1) THEN
+          aindex = 2
+          bindex = 3
+        ELSEIF (axis == 2) THEN
+          aindex = 1
+          bindex = 3
+        ELSEIF (axis == 3) THEN
+          aindex = 1
+          bindex = 2
+        END IF
+
+        temp_sum = 0.0D0
+        DO iter=1,atoms
+          temp = x_coord(aindex,iter)**2 + x_coord(bindex,iter)**2
+          temp_sum = temp_sum + temp
+        END DO
+
+        diag = temp_sum
+
+        END SUBROUTINE calc_diag
+
+        SUBROUTINE calc_product(aindex,bindex,x_coord,prod)
+! calculate the products of the off-diagonal elements of the moment of
+! inertia tensor
+        IMPLICIT NONE
+        INTEGER,INTENT(IN)          :: aindex, bindex
+        REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN) :: x_coord
+        REAL(KIND=DBL),INTENT(OUT)  :: prod
+        REAL(KIND=DBL)              :: temp
+        REAL(KIND=DBL)              :: temp_sum
+        INTEGER                     :: iter
+
+        temp_sum = 0.0D0
+        DO iter=1,atoms
+          temp = x_coord(aindex,iter) * x_coord(bindex,iter)
+          temp_sum = temp_sum + temp
+        END DO
+        
+        prod = -temp_sum
+
+        END SUBROUTINE calc_product
+
+
 
         SUBROUTINE rotate_anticlock(rotate_axis,phi,coord_x
      &    ,is_clockwise)
@@ -81,7 +311,23 @@
 
         END SUBROUTINE rotate_anticlock
 
+
+
+
+
+
+
+
+
+
+!================================================================================
+! THE FOLLOWING SUBROUTINES ARE NOT USED FOR PRODUCTION 
+!================================================================================
+
+
+
         SUBROUTINE get_phi(vec,phi)
+! get phi angle for rotation
         USE constants           ,ONLY:PI
         IMPLICIT NONE
         REAL(KIND=DBL),DIMENSION(3),INTENT(IN)   :: vec
@@ -124,6 +370,7 @@
         END SUBROUTINE get_phi
 
         SUBROUTINE get_psi(vec,psi)
+! get psi angle for rotation
         USE constants           ,ONLY:PI
         IMPLICIT NONE
         REAL(KIND=DBL),DIMENSION(3),INTENT(IN)   :: vec
@@ -163,6 +410,10 @@
         END SUBROUTINE get_psi
 
         SUBROUTINE realign_eig_vec
+! realign principal axes acoording to the following rules:
+! largest eigenvalue    : z-axis
+! next eigenvalue       : y-axis
+! smallest eigenvalue   : x-axis
         USE constants           ,ONLY:PI
         IMPLICIT NONE
         REAL(KIND=DBL),DIMENSION(3)    :: vec
@@ -221,213 +472,5 @@
 !DEBUG ENDS==============================================
 
         END SUBROUTINE realign_to_zaxes
-
-        SUBROUTINE eig_rotate(coord_in, rotation, coord_out)
-        IMPLICIT NONE
-        REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN)   :: coord_in
-        REAL(KIND=DBL),DIMENSION(3,3),INTENT(IN)   :: rotation
-        REAL(KIND=DBL),DIMENSION(:,:)
-     &    ,ALLOCATABLE,INTENT(OUT)  :: coord_out
-
-        IF (ALLOCATED(coord_out)) DEALLOCATE(coord_out)
-        ALLOCATE(coord_out(SIZE(coord_in,1),SIZE(coord_in,2)))
-
-        PRINT *, coord_in
-        PRINT *, rotation
-
-        coord_out = MATMUL(rotation, coord_in)
-
-
-        END SUBROUTINE eig_rotate
-
-        SUBROUTINE print_matrix(text_out,matrix)
-        IMPLICIT NONE
-        CHARACTER(LEN=*)        :: text_out
-        REAL(KIND=DBL),DIMENSION(3,3),INTENT(IN)   :: matrix
-        INTEGER         :: iter
-        PRINT *, '================================================'
-        PRINT *, '*****',text_out,'*****'
-        DO iter=1,3
-          PRINT *, matrix(iter,1), matrix(iter,2), matrix(iter,3)
-        END DO
-        PRINT *, '================================================'
-        END SUBROUTINE print_matrix
-
-        SUBROUTINE diag_tensor(tensor_in,vec,tensor_out)
-        IMPLICIT NONE
-        REAL(KIND=DBL),DIMENSION(3,3),INTENT(IN)   :: tensor_in
-        REAL(KIND=DBL),DIMENSION(3,3),INTENT(IN)   :: vec
-        REAL(KIND=DBL),DIMENSION(3,3),INTENT(OUT)  :: tensor_out
-
-        REAL(KIND=DBL),DIMENSION(3,3)   :: trans_vec    ! vec transposed
-        REAL(KIND=DBL),DIMENSION(3,3)   :: temp
-
-        trans_vec =  TRANSPOSE(vec)
-        temp = MATMUL(trans_vec, tensor_in)
-        temp = MATMUL(temp, vec)
-
-!       temp(1,2) = 0.0D0
-!       temp(1,3) = 0.0D0
-!       temp(2,1) = 0.0D0
-!       temp(2,3) = 0.0D0
-!       temp(3,1) = 0.0D0
-!       temp(3,2) = 0.0D0
-
-        tensor_out = temp
-
-        END SUBROUTINE diag_tensor
-
-        SUBROUTINE print_eigs
-        IMPLICIT NONE
-        INTEGER         :: iter
-        PRINT *, 'eigenvales are'
-        PRINT *, eig_val(1), eig_val(2), eig_val(3)
-        PRINT *, 'eigenvectors are'
-        DO iter=1,3
-          PRINT *, eig_vec(iter,1), eig_vec(iter,2), eig_vec(iter,3)
-        END DO
-        END SUBROUTINE print_eigs
-
-        SUBROUTINE printout_single_eigs(f_num)
-        IMPLICIT NONE
-        INTEGER,INTENT(IN)      :: f_num
-        INTEGER,SAVE    :: counter = 0
-        INTEGER         :: iter
-
-        counter = counter + 1
-
-        WRITE(f_num,*) counter
-        WRITE(f_num,*) 
-        DO iter=1,3
-          WRITE(f_num,*)  eig_vec(iter,1), eig_vec(iter,2)
-     &      , eig_vec(iter,3)
-        END DO
-
-
-        END SUBROUTINE printout_single_eigs
-
-
-
-
-        SUBROUTINE calc_tensor_eig(tensor,val,vec)
-        IMPLICIT NONE
-        REAL(KIND=DBL),DIMENSION(3,3),INTENT(IN)    :: tensor
-        REAL(KIND=DBL),DIMENSION(3),INTENT(OUT)     :: val      ! array of eigenvalues
-        REAL(KIND=DBL),DIMENSION(3,3),INTENT(OUT)   :: vec      ! matrix of eigenvectors
-
-        INTEGER, PARAMETER             :: lwmax=1000
-        INTEGER                        :: lwork
-        REAl(KIND=4),DIMENSION(3,3)    :: matrix                ! temporary matrix for ssyev call
-        REAl(KIND=4),DIMENSION(3)      :: w
-        REAl(KIND=4),DIMENSION(lwmax)  :: work
-        INTEGER                        :: ssyev_info
-
-        matrix = tensor
-
-        lwork = -1
-        CALL ssyev('V','U', 3, matrix, 
-     &        3, w, work, lwork, ssyev_info ) 
-
-        lwork = MIN(lwmax, INT(work(1)))
-
-!       PRINT *, 'lwork = ', lwork
-
-        CALL ssyev('V','U', 3, matrix, 
-     &        3, w, work, lwork, ssyev_info ) 
-
-        val = w
-        vec = matrix
-
-        END SUBROUTINE calc_tensor_eig
-
-        SUBROUTINE calc_inertia_tensor(x_coord)
-        IMPLICIT NONE
-        REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN) :: x_coord
-        REAL(KIND=DBL)          :: diag_xx, diag_yy, diag_zz
-        REAL(KIND=DBL)          :: prod_xy, prod_xz, prod_yz
-
-        CALL calc_diag(1,x_coord,diag_xx)
-        CALL calc_diag(2,x_coord,diag_yy)
-        CALL calc_diag(3,x_coord,diag_zz)
-
-        CALL calc_product(1,2,x_coord,prod_xy)
-        CALL calc_product(1,3,x_coord,prod_xz)
-        CALL calc_product(2,3,x_coord,prod_yz)
-        
-        inertia_tensor(1,1) = diag_xx
-        inertia_tensor(2,2) = diag_yy
-        inertia_tensor(3,3) = diag_zz
-
-        inertia_tensor(1,2) = prod_xy
-        inertia_tensor(2,1) = prod_xy
-
-        inertia_tensor(1,3) = prod_xz
-        inertia_tensor(3,1) = prod_xz
-
-        inertia_tensor(2,3) = prod_yz
-        inertia_tensor(3,2) = prod_yz
-
-        END SUBROUTINE calc_inertia_tensor
-
-        SUBROUTINE print_inertia_tensor
-        IMPLICIT NONE
-        INTEGER         :: iter
-        PRINT *, '=========INERTIA TENSOR========================'
-        DO iter=1,3
-          PRINT *, inertia_tensor(iter,1), inertia_tensor(iter,2)
-     &      ,inertia_tensor(iter,3)
-        END DO
-        PRINT *, '==============================================='
-        END SUBROUTINE print_inertia_tensor
-
-        SUBROUTINE calc_diag(axis,x_coord,diag)
-        IMPLICIT NONE
-        INTEGER,INTENT(IN)              :: axis
-        REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN) :: x_coord
-        REAL(KIND=DBL),INTENT(OUT)      :: diag
-        INTEGER                         :: aindex,bindex
-        REAL(KIND=DBL)              :: temp
-        REAL(KIND=DBL)              :: temp_sum
-        INTEGER         :: iter
-
-        IF (axis == 1) THEN
-          aindex = 2
-          bindex = 3
-        ELSEIF (axis == 2) THEN
-          aindex = 1
-          bindex = 3
-        ELSEIF (axis == 3) THEN
-          aindex = 1
-          bindex = 2
-        END IF
-
-        temp_sum = 0.0D0
-        DO iter=1,atoms
-          temp = x_coord(aindex,iter)**2 + x_coord(bindex,iter)**2
-          temp_sum = temp_sum + temp
-        END DO
-
-        diag = temp_sum
-
-        END SUBROUTINE calc_diag
-
-        SUBROUTINE calc_product(aindex,bindex,x_coord,prod)
-        IMPLICIT NONE
-        INTEGER,INTENT(IN)          :: aindex, bindex
-        REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN) :: x_coord
-        REAL(KIND=DBL),INTENT(OUT)  :: prod
-        REAL(KIND=DBL)              :: temp
-        REAL(KIND=DBL)              :: temp_sum
-        INTEGER                     :: iter
-
-        temp_sum = 0.0D0
-        DO iter=1,atoms
-          temp = x_coord(aindex,iter) * x_coord(bindex,iter)
-          temp_sum = temp_sum + temp
-        END DO
-        
-        prod = -temp_sum
-
-        END SUBROUTINE calc_product
 
         END MODULE inertia

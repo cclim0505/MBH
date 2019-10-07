@@ -1,5 +1,5 @@
         MODULE monte
-        USE constants
+        USE constants           ,ONLY:SGL,DBL
         USE coord_grad_ene      ,ONLY: energy,old_energy 
      &    ,lowest_energy
      &    ,coord,old_coord,lowest_coord
@@ -10,6 +10,7 @@
         CONTAINS
 
         SUBROUTINE read_mc_param
+! read parameters for Monte Carlo steps
         IMPLICIT NONE
         CHARACTER(LEN=18)        :: mc_param_file = 'param_MC.dat'
         INTEGER                  :: f_mc
@@ -23,6 +24,7 @@
         END SUBROUTINE read_mc_param
 
         SUBROUTINE monte_carlo
+! Monte Carlo simulation to accept or reject new configuration
         IMPLICIT NONE
 !       REAL(KIND=SGL)  ::      rnum
         LOGICAL         ::      is_accept
@@ -60,6 +62,7 @@
         END SUBROUTINE monte_carlo
 
         SUBROUTINE assign_lowest_energy_coord
+! update coordinates with lower energy when condition is met
         IMPLICIT NONE
 
         IF (energy < lowest_energy) THEN
@@ -73,6 +76,7 @@
 
 
         SUBROUTINE calc_prob(ene,prob)
+! calculate probabilty of exponential function
         IMPLICIT NONE
         REAL(KIND=DBL), INTENT(IN)      :: ene
         REAL(KIND=SGL), INTENT(OUT)     :: prob

@@ -17,6 +17,23 @@
         CHARACTER(LEN=18)        :: in_file 
 
         CONTAINS
+! List of subroutines
+!       read_atoms
+!       allocate_coord_gradient
+!       read_coord
+!       printout_single_coord
+!       read_single_coord
+!       print_coord
+!       print_lowest_ene
+!       print_ene_dat
+!       printout_xyz
+!       print_update_lowest_coord
+!       print_lowest_coord
+!       print_local_coord
+!       calc_centroid
+!       set_coord_to_origin
+
+
 
         SUBROUTINE read_atoms
 ! determine the number of atoms
@@ -62,6 +79,8 @@
         END SUBROUTINE read_coord
 
         SUBROUTINE printout_single_coord(f_num,x_coord)
+! print out coordinates to a file. Takes in file number for the output
+! file
         IMPLICIT NONE
         INTEGER,INTENT(IN)                           :: f_num
         REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN)     :: x_coord
@@ -77,6 +96,7 @@
         END SUBROUTINE printout_single_coord
 
         SUBROUTINE read_single_coord(f_num,x_coord)
+! reads xyz coordinate file, takes in file number as argument
         IMPLICIT NONE
         INTEGER,INTENT(IN)                           :: f_num
         REAL(KIND=DBL),DIMENSION(:,:),INTENT(INOUT)  :: x_coord
@@ -106,6 +126,7 @@
         END SUBROUTINE print_coord
 
         SUBROUTINE print_lowest_ene
+! print lowest energy of structure to a file
         IMPLICIT NONE 
         CHARACTER(LEN=20)      :: filename='00_lowest_energy.dat'
         INTEGER :: f_out
@@ -117,6 +138,7 @@
         END SUBROUTINE print_lowest_ene
 
         SUBROUTINE print_ene_dat(filename)
+! print old energies when updated to a file
         IMPLICIT NONE 
         CHARACTER(LEN=*),INTENT(IN)       :: filename
         INTEGER :: counter=1
@@ -131,6 +153,7 @@
         END SUBROUTINE print_ene_dat
 
         SUBROUTINE printout_xyz(filename,x_coord)
+! printout coordinates
         IMPLICIT NONE
         CHARACTER(LEN=*),INTENT(IN)                 :: filename
         REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN)    :: x_coord
@@ -153,26 +176,8 @@
 
         END SUBROUTINE printout_xyz
 
-        SUBROUTINE print_coord_xyz(filename)
-        IMPLICIT NONE
-        CHARACTER(LEN=*),INTENT(IN)       :: filename
-        INTEGER :: iter
-        INTEGER :: f_out
-
-        OPEN(NEWUNIT=f_out,FILE=TRIM(filename),ACCESS='append')
-
-        WRITE(f_out,*) atoms
-        WRITE(f_out,*) 
-        DO iter=1,atoms
-          WRITE(f_out,*) material,coord(1,iter),coord(2,iter)
-     $      ,coord(3,iter)
-        END DO
-
-        CLOSE(f_out)
-
-        END SUBROUTINE print_coord_xyz
-
         SUBROUTINE print_update_lowest_coord
+! update the lowest energy coordinate from time to time
         IMPLICIT NONE
         CHARACTER(LEN=20) :: filename='01_lowest_coords.xyz'
         INTEGER           :: iter
@@ -192,6 +197,7 @@
         END SUBROUTINE print_update_lowest_coord
 
         SUBROUTINE print_lowest_coord
+! print out the lowest energy coordinate
         IMPLICIT NONE
         CHARACTER(LEN=19) :: filename='00_lowest_coord.xyz'
         INTEGER           :: iter
@@ -211,6 +217,7 @@
         END SUBROUTINE print_lowest_coord
 
         SUBROUTINE print_local_coord
+! print local minima coordinates after each MC step
         IMPLICIT NONE
         CHARACTER(LEN=19) :: filename='02_local_coords.xyz'
         INTEGER           :: iter
@@ -232,12 +239,15 @@
         SUBROUTINE calc_centroid(x_coord,centroid)
 ! calculate centroid for set_coord_to_origin
         IMPLICIT NONE
-        INTEGER :: iter
         REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN)    :: x_coord
         REAL(KIND=DBL),DIMENSION(3),INTENT(OUT)     :: centroid
+        INTEGER                         :: iter
+        INTEGER                         :: natoms
+
+        natoms = SIZE(x_coord,2)
 
         centroid (:) = 0.0
-        DO iter=1,atoms
+        DO iter=1,natoms
           centroid(1) = centroid(1) + x_coord(1,iter)
           centroid(2) = centroid(2) + x_coord(2,iter)
           centroid(3) = centroid(3) + x_coord(3,iter)
@@ -252,16 +262,20 @@
 
         END SUBROUTINE calc_centroid
 
-        SUBROUTINE set_coord_to_origin
+        SUBROUTINE set_coord_to_origin(x_coord)
 ! set coordinates' centroid at origin
         IMPLICIT NONE
+        REAL(KIND=DBL),DIMENSION(:,:),INTENT(INOUT)    :: x_coord
         INTEGER                         :: iter
+        INTEGER                         :: natoms
         REAL(KIND=DBL),DIMENSION(3)     :: centroid
 
-        CALL calc_centroid(coord,centroid)
+        natoms = SIZE(x_coord,2)
 
-        DO iter=1,atoms
-          coord(:,iter) = coord (:,iter) - centroid(:)
+        CALL calc_centroid(x_coord,centroid)
+
+        DO iter=1,natoms
+          x_coord(:,iter) = x_coord (:,iter) - centroid(:)
         END DO
 
         END SUBROUTINE set_coord_to_origin

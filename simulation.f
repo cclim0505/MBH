@@ -2,6 +2,7 @@
         CONTAINS
 
         SUBROUTINE set_up_universal
+! set up universal initial values across all MPI processes
         USE initialise          ,ONLY: read_session,read_params
         USE coord_grad_ene      ,ONLY: allocate_coord_gradient 
         IMPLICIT NONE
@@ -17,6 +18,7 @@
         END SUBROUTINE test_align_then_cut
 
         SUBROUTINE test_cut_splice
+! testing cut and splice routine within process
         USE constants           ,ONLY:DBL,PI
         USE coord_grad_ene      ,ONLY:coord,atoms
      &    ,read_single_coord
@@ -63,6 +65,8 @@
         END SUBROUTINE test_cut_splice
 
         SUBROUTINE test_eig_rotate
+! testing principal axis alignment by obtaining rotation matrix created
+! from eigenfunction calculated
         USE constants           ,ONLY:DBL
         USE coord_grad_ene      ,ONLY:coord,atoms
      &    ,read_single_coord
@@ -120,7 +124,7 @@
 
         DO iter=1,loop_end
           CALL read_single_coord(f_in,coord)
-          CALL set_coord_to_origin
+          CALL set_coord_to_origin(coord)
           CALL calc_inertia_tensor(coord)
           CALL calc_tensor_eig(inertia_tensor,eig_val,eig_vec)
           CALL printout_single_eigs(f_ori)
@@ -173,6 +177,7 @@
         END SUBROUTINE test_eig_rotate
 
         SUBROUTINE test_improved_random
+! testing improved version for initializing random coordinates
         USE coord_grad_ene        ,ONLY:coord,printout_xyz
         USE random_coord          ,ONLY:set_random_coord
         IMPLICIT NONE
@@ -183,12 +188,13 @@
         END SUBROUTINE test_improved_random
 
         SUBROUTINE simulate_BH
+! simulate basin-hopping optimization
         USE constants           ,ONLY: DBL
         USE initialise          ,ONLY: total_mc_step,check_mc_step
-        USE coord_grad_ene      ,ONLY: read_atoms,read_coord 
+        USE coord_grad_ene      ,ONLY: read_coord 
      &    ,coord,optim_coord,old_coord,lowest_coord
      &    ,energy,old_energy,lowest_energy,atoms
-     &    , print_coord,print_coord_xyz,print_lowest_coord
+     &    , print_coord,printout_xyz,print_lowest_coord
      &    , print_lowest_ene 
      &    , print_local_coord
      &    , gradient
@@ -214,7 +220,7 @@
 !       CALL read_coord
 !       CALL calc_energy(coord,atoms,energy)
 !       PRINT *, 'ground_state is ', energy
-!       CALL print_coord_xyz('3input.xyz')
+!       CALL printout_xyz('3input.xyz',coord)
 !DEBUG ENDS==============================================
 
 
@@ -223,7 +229,7 @@
 
 !DEBUG BEGINS==============================================
 !       CALL print_coord
-!       CALL print_coord_xyz('1aa.xyz')
+!       CALL printout_xyz('1aa.xyz',coord)
 !DEBUG ENDS==============================================
 
         CALL local_minim
@@ -237,7 +243,7 @@
 
 !DEBUG BEGINS==============================================
 !       CALL print_coord
-!       CALL print_coord_xyz('1bb.xyz')
+!       CALL printout_xyz('1bb.xyz',coord)
 !DEBUG ENDS==============================================
 
 
@@ -250,7 +256,7 @@
             CALL calc_energy(coord,atoms,energy)
 
 !DEBUG BEGINS==============================================
-!         CALL print_coord_xyz('2serial.xyz')
+!         CALL printout_xyz('2serial.xyz',coord)
 !DEBUG ENDS==============================================
 
             CALL print_local_coord
@@ -274,7 +280,7 @@
 
 !DEBUG BEGINS==============================================
 !       PRINT *, 'lowest energy is ', lowest_energy
-!       CALL print_coord_xyz('4MBH_result.xyz')
+!       CALL printout_xyz('4MBH_result.xyz',coord)
 !DEBUG ENDS==============================================
 
 

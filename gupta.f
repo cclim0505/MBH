@@ -33,6 +33,7 @@
         END SUBROUTINE read_gupta_param
 
         SUBROUTINE gupta_both_ene_grad(x_coord,natoms,ene,grad)
+! calculate gupta energy and gradient
         IMPLICIT NONE
         REAl(KIND=DBL),DIMENSION(:,:),INTENT(IN)  :: x_coord
         INTEGER,INTENT(IN)                        :: natoms
@@ -366,6 +367,7 @@
         END SUBROUTINE gupta_band_gradient
 
         SUBROUTINE indv_gupta_energy(x_coord,natoms,energy_array)
+! calculate gupta energy of individual atoms
         IMPLICIT NONE
         REAl(KIND=DBL),DIMENSION(:,:),INTENT(IN)      :: x_coord
         INTEGER,INTENT(IN)                            :: natoms
@@ -384,6 +386,7 @@
         END SUBROUTINE indv_gupta_energy
 
         SUBROUTINE indv_gupta_repulsive(natoms,energy_array)
+! calculate gupta repulsive energy of individual atoms
         IMPLICIT NONE
         INTEGER,INTENT(IN)                      :: natoms
         REAL(KIND=DBL),DIMENSION(:),INTENT(INOUT)  :: energy_array
@@ -405,6 +408,7 @@
         END SUBROUTINE indv_gupta_repulsive
 
         SUBROUTINE indv_gupta_band(natoms,energy_array)
+! calculate gupta band energy of individual atoms
         IMPLICIT NONE
         INTEGER,INTENT(IN)                      :: natoms
         REAL(KIND=DBL),DIMENSION(:),INTENT(INOUT)  :: energy_array

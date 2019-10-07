@@ -1,16 +1,22 @@
         MODULE random_coord
-        USE constants
+        USE constants           ,ONLY:SGL,DBL,PI
         USE coord_grad_ene      ,ONLY:atoms,coord
-        REAL(KIND=SGL)  ::      max_radius
         REAL(KIND=SGL)  ::      radius_ratio
         REAL(KIND=SGL)  ::      ref_radius
+        LOGICAL         ::      is_fixed_radius
+        REAL(KIND=SGL)  ::      fixed_radius
         REAL(KIND=SGL),PARAMETER  ::      min_atomic_dist = 0.5D0
+        REAL(KIND=SGL)  ::      max_radius
 
         CONTAINS
 
         SUBROUTINE set_random_coord
+! main subroutine to set up random initial coordinates of cluster
         IMPLICIT NONE
         CALL set_max_radius
+!DEBUG STARTS==============================================
+        PRINT *, "Max radius is", max_radius
+!DEBUG ENDS==============================================
 !       CALL init_random_coord(atoms,coord)
         CALL init_random_improved(atoms,coord)
         END SUBROUTINE set_random_coord
@@ -30,6 +36,8 @@
 
 
         SUBROUTINE get_min_dist(x_coord,iteration,min_dist)
+! get the minimum value of the calculated distances between newly 
+! generated atom and previously generated atoms
         IMPLICIT NONE
         REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN)        :: x_coord
         INTEGER,INTENT(IN)                              :: iteration
@@ -54,7 +62,7 @@
         END SUBROUTINE get_min_dist
 
         SUBROUTINE init_random_improved(natoms,x_coord)
-! initialise random coordinates, with improved algorith and min_dist
+! initialise random coordinates, with improved algorithm and min_dist
 ! considered
         IMPLICIT NONE
         INTEGER,INTENT(IN)                             :: natoms
@@ -92,6 +100,7 @@
 
 
         SUBROUTINE read_random_param
+! read in parameters to generate random initial coordinates
         IMPLICIT NONE
         CHARACTER(LEN=18)    :: random_param_file = 'param_random.dat'
         INTEGER                  :: f_random
@@ -100,6 +109,8 @@
         OPEN(NEWUNIT=f_random, FILE=random_param_file, STATUS='old')
         READ(f_random,*) dummy, radius_ratio
         READ(f_random,*) dummy, ref_radius
+        READ(f_random,*) dummy, is_fixed_radius
+        READ(f_random,*) dummy, fixed_radius
         CLOSE(f_random)
         
         END SUBROUTINE read_random_param
@@ -109,8 +120,12 @@
         SUBROUTINE set_max_radius
 ! set maximum radius based on radius parameters
         IMPLICIT NONE
-        max_radius = sphere_radius(atoms, ref_radius)
-        max_radius = max_radius * radius_ratio
+        IF (is_fixed_radius) THEN
+          max_radius = fixed_radius
+        ELSE
+          max_radius = sphere_radius(atoms, ref_radius)
+          max_radius = max_radius * radius_ratio
+        END IF
         END SUBROUTINE set_max_radius
 
         REAL FUNCTION sphere_radius(num,r_zero)

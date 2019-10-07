@@ -6,6 +6,7 @@
         CONTAINS
 
         SUBROUTINE check_mc_step(iteration)
+! print MC steps periodically for testing and debugging
         IMPLICIT NONE
         INTEGER,INTENT(IN)      :: iteration
         INTEGER                 :: remainder

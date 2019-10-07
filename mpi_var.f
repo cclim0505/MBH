@@ -4,6 +4,7 @@
 
         CONTAINS
         SUBROUTINE ch_work_dir
+! change working directory for each worker process
         IMPLICIT NONE
         CHARACTER(20)   :: dir
         CHARACTER(6)    :: prefix="worker"

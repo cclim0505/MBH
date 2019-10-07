@@ -1,2 +1,14 @@
 confining_radius_ratio 		 0.88
 ref_radius			 4.0782		in angstroms for fcc gold
+is_fixed_radius			.FALSE.
+fixed_radius 			 3.0		in angstroms, minimum is 1.0
+
+
+
+
+
+Reference radius for different elements
+Au				4.0782
+Ag				??????
+Cu
+C

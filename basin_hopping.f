@@ -1,5 +1,5 @@
         MODULE basin_hopping
-        USE constants
+        USE constants           ,ONLY: SGL,DBL,PI
         USE coord_grad_ene      ,ONLY: atoms,coord,set_coord_to_origin
         USE random_coord        ,ONLY: max_radius, polar_2_cartesian
         USE gupta               
@@ -47,7 +47,7 @@
         REAL(KIND=SGL),INTENT(INOUT) :: radius
         REAL(KIND=DBL),DIMENSION(atoms) :: radius_array
 
-        CALL set_coord_to_origin
+        CALL set_coord_to_origin(coord)
         CALL calc_all_radius(coord,radius_array)
 !       CALL calc_distance(coord)
 
@@ -135,6 +135,7 @@
 
 
         SUBROUTINE sort_energies(do_angle_disp,highest_index)
+! sort energies of each individual atom
         USE potential           ,ONLY: calc_indv_energy 
         IMPLICIT NONE
         LOGICAL,INTENT(OUT)              :: do_angle_disp    ! YES or NO to carry out angular displacement step

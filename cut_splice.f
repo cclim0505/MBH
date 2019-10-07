@@ -1,11 +1,72 @@
         MODULE cut_splice
-        USE constants           ,ONLY:DBL
-        USE coord_grad_ene      ,ONLY:set_coord_to_origin
-     &    ,printout_xyz
+        USE constants           ,ONLY:DBL,PI
+        USE coord_grad_ene      ,ONLY:coord,atoms
+     &    , printout_xyz
+     &    , set_coord_to_origin
+        USE inertia             ,ONLY:realign_principal_axes
         CONTAINS
+
+        SUBROUTINE cut_splice_move
+! cut and splice move
+        IMPLICIT NONE
+        CALL realign_principal_axes
+        CALL cut_itself_then_splice
+        END SUBROUTINE cut_splice_move
+
+        SUBROUTINE cut_itself_then_splice
+! cutting structure itself along the x-axis
+        IMPLICIT NONE
+        INTEGER                 :: furthest
+        INTEGER                 :: cut_point
+        REAL(KIND=DBL),DIMENSION(:),ALLOCATABLE :: lengths
+        REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE
+     &    :: upper_cut, lower_cut
+
+        IF (ALLOCATED(lengths))  DEALLOCATE(lengths)
+        ALLOCATE(lengths(atoms))
+
+        CALL get_furthest_atom(coord,furthest)
+        CALL calc_distance_from_furthest(furthest,coord,lengths)
+        CALL init_upper_lower_cut(coord,cut_point)
+        IF (ALLOCATED(upper_cut)) DEALLOCATE(upper_cut)
+        IF (ALLOCATED(lower_cut)) DEALLOCATE(lower_cut)
+        ALLOCATE(upper_cut(3,cut_point))
+        ALLOCATE(lower_cut(3,atoms-cut_point))
+        CALL cut_cluster(coord,cut_point,upper_cut,lower_cut)
+
+        CALL rotate_upperlower_cut(upper_cut,lower_cut,0.5*PI,.TRUE.)
+        CALL splice_cuts(upper_cut,lower_cut,coord)
+        
+
+        END SUBROUTINE cut_itself_then_splice
+
+        SUBROUTINE splice_cuts(upper_cut,lower_cut,x_coord)
+! splice/join upper and lower cuts together and transfers xyz into coord
+        IMPLICIT NONE
+        REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN) :: upper_cut, lower_cut
+        REAL(KIND=DBL),DIMENSION(:,:),INTENT(INOUT)        :: x_coord
+        INTEGER         :: iter,jter
+        INTEGER         :: natoms
+        INTEGER         :: cut_point
+
+        natoms = SIZE(x_coord,2)
+        cut_point = SIZE(upper_cut,2)
+
+        DO iter=1,cut_point 
+          x_coord(:,iter) = upper_cut(:,iter)
+        END DO
+
+        jter = cut_point
+        DO iter=1,natoms-cut_point
+          jter = jter+1
+          x_coord(:,jter) = lower_cut(:,iter)
+        END DO
+
+        END SUBROUTINE splice_cuts
 
         SUBROUTINE rotate_upperlower_cut(upper_cut,lower_cut,phi
      &    ,is_upper)
+! rotate one cut along x-axis while keep the other cut fixed
         USE inertia             ,ONLY:rotate_anticlock
         IMPLICIT NONE
         REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE,INTENT(INOUT) 
@@ -81,6 +142,7 @@
 
         SUBROUTINE calc_distance_from_furthest(furthest,x_coord
      &    ,distances)
+! calculate distances of atoms with respect to the furthest atom
         IMPLICIT NONE
         INTEGER,INTENT(IN)                              :: furthest
         REAL(KIND=DBL),DIMENSION(:,:),INTENT(INOUT)        :: x_coord
@@ -148,6 +210,7 @@
 
 
         SUBROUTINE get_furthest_atom(x_coord,furthest)
+! get index of the atom that is furthest from the centre of mass
         IMPLICIT NONE
         REAL(KIND=DBL),DIMENSION(:,:),INTENT(IN)        :: x_coord
         INTEGER,INTENT(OUT)                             :: furthest
