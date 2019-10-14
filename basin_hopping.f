@@ -28,7 +28,7 @@
         CHARACTER(LEN=18)        :: bh_param_file = 'saved_param_BH.dat'
         INTEGER                  :: f_bh
 
-        OPEN(NEWUNIT=f_bh, FILE=bh_param_file, STATUS='new')
+        OPEN(NEWUNIT=f_bh, FILE=bh_param_file, STATUS='replace')
         WRITE(f_bh,*) 'random_displacement_ratio'
      &    , random_displacement_ratio
         WRITE(f_bh,*) 'energy_compare_ratio', energy_compare_ratio

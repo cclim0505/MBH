@@ -36,7 +36,7 @@
         CHARACTER(LEN=18)        :: mc_param_file = 'saved_param_MC.dat'
         INTEGER                  :: f_mc
 
-        OPEN(NEWUNIT=f_mc, FILE=mc_param_file, STATUS='new')
+        OPEN(NEWUNIT=f_mc, FILE=mc_param_file, STATUS='replace')
         WRITE(f_mc,*) 'temperature_ratio', tempera
         WRITE(f_mc,*) 'acceptance_ratio', acceptance_ratio
         WRITE(f_mc,*) 'is_cut_splice', is_cut_splice

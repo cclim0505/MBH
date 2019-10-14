@@ -134,7 +134,7 @@
         INTEGER                  :: f_random
         CHARACTER(LEN=2)         :: dummy
 
-        OPEN(NEWUNIT=f_random, FILE=random_param_file, STATUS='new')
+        OPEN(NEWUNIT=f_random, FILE=random_param_file, STATUS='replace')
         WRITE(f_random,*) 'confining_radius_ratio', radius_ratio
         WRITE(f_random,*) 'ref_radius', ref_radius
         WRITE(f_random,*) 'is_fixed_radius', is_fixed_radius

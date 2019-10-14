@@ -100,7 +100,7 @@
         CHARACTER(20)   :: session_file='saved_session_in.dat'
         INTEGER         :: f_session
 
-        OPEN(NEWUNIT=f_session,FILE=session_file,STATUS='new')
+        OPEN(NEWUNIT=f_session,FILE=session_file,STATUS='replace')
         WRITE(f_session,'(A, T33, I8)') 'number_of_atoms', atoms 
         WRITE(f_session,'(A, T33, 20A)') 'material_or_element', material
         WRITE(f_session,'(A, T33, I8)') 'potential_type',potential_type
