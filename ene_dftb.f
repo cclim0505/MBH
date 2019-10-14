@@ -5,7 +5,17 @@
         REAL(KIND=DBL),PARAMETER        :: au_r0 = 2.884
         REAL(KIND=DBL),PARAMETER        :: au_e0 = 27.21138624598853
         REAL(KIND=DBL),PARAMETER        :: au_f0 = 51.42208619083232
-        CHARACTER(LEN=18)          :: run_dftb = 'dftb+19 > dftb.log'
+        CHARACTER(LEN=18)          :: run_dftb = 'dftb+19 > dftb.log' ! DFTB command to run on command line
+
+        PRIVATE  :: read_indv_dftb_energy
+        PRIVATE  :: read_dftb_energy
+        PRIVATE  :: read_dftb_gradient
+
+        PUBLIC  :: indv_dftb_energy
+        PUBLIC  :: dftb_both_ene_grad
+        PUBLIC  :: dftb_energy
+        PUBLIC  :: dftb_gradient
+        PUBLIC  :: coord_2_gen
 
         CONTAINS
 

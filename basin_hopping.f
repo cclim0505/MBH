@@ -22,8 +22,25 @@
 
         END SUBROUTINE read_bh_param
 
+        SUBROUTINE printout_bh_param
+! printout basin hopping parameters
+        IMPLICIT NONE
+        CHARACTER(LEN=18)        :: bh_param_file = 'saved_param_BH.dat'
+        INTEGER                  :: f_bh
+
+        OPEN(NEWUNIT=f_bh, FILE=bh_param_file, STATUS='new')
+        WRITE(f_bh,*) 'random_displacement_ratio'
+     &    , random_displacement_ratio
+        WRITE(f_bh,*) 'energy_compare_ratio', energy_compare_ratio
+        CLOSE(f_bh)
+
+        END SUBROUTINE printout_bh_param
+
         SUBROUTINE bhop_move
 ! basin-hopping step
+!DEBUG BEGINS==============================================
+        USE potential           ,ONLY: potential_type
+!DEBUG ENDS==============================================
         IMPLICIT NONE
         LOGICAL         :: do_angle_disp ! perform angular displacement
         INTEGER         :: atom_index    ! index of atom to be moved
@@ -32,6 +49,9 @@
 
         do_angle_disp = .FALSE.
         CALL sort_energies(do_angle_disp,atom_index)
+!DEBUG BEGINS==============================================
+        IF(potential_type==2) PRINT *, 'after sort_energies'
+!DEBUG ENDS==============================================
 
         IF (do_angle_disp .EQV. .TRUE.) THEN
           CALL get_new_radius(max_radius)
@@ -49,7 +69,6 @@
 
         CALL set_coord_to_origin(coord)
         CALL calc_all_radius(coord,radius_array)
-!       CALL calc_distance(coord)
 
         radius = REAL(MAXVAL(radius_array))
 

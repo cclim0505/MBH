@@ -6,8 +6,7 @@
 # 
 
 # Input variables
-
-workers=1		# the number of parallel processes intended
+workers=$1		# the number of parallel processes intended
 tar_folder='00_worker_folder2copy'
 
 #===================================================================

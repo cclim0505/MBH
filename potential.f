@@ -1,12 +1,18 @@
         MODULE potential
         USE constants          ,ONLY: DBL
-!       USE coord_grad_ene     ,ONLY: gradient, energy
         USE gupta              ,ONLY: gupta_energy, gupta_gradient
      &    ,indv_gupta_energy, gupta_both_ene_grad
         USE dftb              ,ONLY: dftb_energy, dftb_gradient
      &    ,indv_dftb_energy,dftb_both_ene_grad
 
         INTEGER         :: potential_type
+        INTEGER         :: potent_1, potent_2
+
+
+        PUBLIC          :: calc_both_ene_grad
+        PUBLIC          :: calc_energy
+        PUBLIC          :: calc_gradient
+        PUBLIC          :: calc_indv_energy
 
         CONTAINS
 

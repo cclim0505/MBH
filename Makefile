@@ -23,6 +23,7 @@ BASIN = basin_hopping
 MONTE = monte
 INERTIA = inertia
 SPLICE = cut_splice
+MOVES = moves
 
 PARAM = param			#module to compliment senior's code
 GRAD = grad			#gradient subroutine developed by senior
@@ -50,6 +51,7 @@ OBJS = 	$(CONST).o\
 	$(MONTE).o\
 	$(INERTIA).o\
 	$(SPLICE).o\
+	$(MOVES).o\
 	$(INIT).o\
 	$(ARRMAT).o\
 	$(BLAS).o\
@@ -99,6 +101,9 @@ $(INERTIA).o: $(INERTIA).f $(CONST).o $(CGE).o
 $(SPLICE).o: $(SPLICE).f $(CONST).o $(CGE).o $(INERTIA).o
 	$(FC) -c $(FFLAGS) $< 
 
+$(MOVES).o: $(MOVES).f $(BASIN).o $(SPLICE).o $(MONTE).o
+	$(FC) -c $(FFLAGS) $< 
+
 $(ARRMAT).o: $(ARRMAT).f $(CONST).o $(CGE).o
 	$(FC) -c $(FFLAGS) $< 
 
@@ -121,7 +126,7 @@ $(OPTIM).o: $(OPTIM).f $(CONST).o $(CGE).o $(POTENT).o $(ARRMAT).o $(DFTB).o
 	$(FC) -c $(FFLAGS) $< 
 
 $(SIMUL).o: $(SIMUL).f $(INIT).o $(CGE).o $(CONST).o $(SPLICE).o $(INERTIA).o $(RANDOM).o\
-		$(OPTIM).o $(BASIN).o $(MONTE).o $(POTENT).o
+		$(OPTIM).o $(MONTE).o $(MOVES).o $(POTENT).o
 	$(FC) -c $(FFLAGS) $< 
 
 $(DRIVER).o: $(DRIVER).f $(SIMUL).o $(MPIVAR).o

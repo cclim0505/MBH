@@ -16,23 +16,23 @@
 !DEBUG===============================================================
         CHARACTER(LEN=18)        :: in_file 
 
-        CONTAINS
-! List of subroutines
-!       read_atoms
-!       allocate_coord_gradient
-!       read_coord
-!       printout_single_coord
-!       read_single_coord
-!       print_coord
-!       print_lowest_ene
-!       print_ene_dat
-!       printout_xyz
-!       print_update_lowest_coord
-!       print_lowest_coord
-!       print_local_coord
-!       calc_centroid
-!       set_coord_to_origin
+        PRIVATE :: read_atoms
+        PRIVATE :: calc_centroid
 
+        PUBLIC :: allocate_coord_gradient
+        PUBLIC :: read_coord
+        PUBLIC :: printout_single_coord
+        PUBLIC :: read_single_coord
+        PUBLIC :: print_coord
+        PUBLIC :: print_lowest_ene
+        PUBLIC :: print_ene_dat
+        PUBLIC :: printout_xyz
+        PUBLIC :: print_update_lowest_coord
+        PUBLIC :: print_lowest_coord
+        PUBLIC :: print_local_coord
+        PUBLIC :: set_coord_to_origin
+
+        CONTAINS
 
 
         SUBROUTINE read_atoms

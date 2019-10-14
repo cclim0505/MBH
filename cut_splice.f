@@ -4,7 +4,10 @@
      &    , printout_xyz
      &    , set_coord_to_origin
         USE inertia             ,ONLY:realign_principal_axes
+
+        PRIVATE         :: cut_itself_then_splice
         CONTAINS
+
 
         SUBROUTINE cut_splice_move
 ! cut and splice move

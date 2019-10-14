@@ -4,8 +4,12 @@
      &    ,lowest_energy
      &    ,coord,old_coord,lowest_coord
      &    ,print_ene_dat,print_update_lowest_coord
+
         REAL(KIND=SGL)        :: tempera=0.80000
         REAL(KIND=SGL)        :: acceptance_ratio=0.50000
+        LOGICAL               :: is_cut_splice
+        INTEGER                 :: pre_cut_splice_period
+        INTEGER                 :: cut_splice_freq
 
         CONTAINS
 
@@ -19,9 +23,28 @@
         OPEN(NEWUNIT=f_mc, FILE=mc_param_file, STATUS='old')
         READ(f_mc,*) dummy, tempera
         READ(f_mc,*) dummy, acceptance_ratio
+        READ(f_mc,*) dummy, is_cut_splice
+        READ(f_mc,*) dummy, pre_cut_splice_period
+        READ(f_mc,*) dummy, cut_splice_freq
         CLOSE(f_mc)
         
         END SUBROUTINE read_mc_param
+
+        SUBROUTINE printout_mc_param
+! printout parameters for Monte Carlo steps
+        IMPLICIT NONE
+        CHARACTER(LEN=18)        :: mc_param_file = 'saved_param_MC.dat'
+        INTEGER                  :: f_mc
+
+        OPEN(NEWUNIT=f_mc, FILE=mc_param_file, STATUS='new')
+        WRITE(f_mc,*) 'temperature_ratio', tempera
+        WRITE(f_mc,*) 'acceptance_ratio', acceptance_ratio
+        WRITE(f_mc,*) 'is_cut_splice', is_cut_splice
+        WRITE(f_mc,*) 'pre_cut_splice_period', pre_cut_splice_period
+        WRITE(f_mc,*) 'cut_splice_freq', cut_splice_freq
+        CLOSE(f_mc)
+        
+        END SUBROUTINE printout_mc_param
 
         SUBROUTINE monte_carlo
 ! Monte Carlo simulation to accept or reject new configuration

@@ -8,6 +8,17 @@
         REAL(KIND=SGL),PARAMETER  ::      min_atomic_dist = 0.5D0
         REAL(KIND=SGL)  ::      max_radius
 
+        PRIVATE          :: get_random3
+        PRIVATE          :: get_min_dist
+        PRIVATE          :: init_random_improved
+        PRIVATE          :: set_max_radius
+        PRIVATE          :: init_random_coord
+
+        PUBLIC          :: set_random_coord
+        PUBLIC          :: read_random_param
+        PUBLIC          :: polar_2_cartesian
+        PUBLIC          :: printout_random_param
+
         CONTAINS
 
         SUBROUTINE set_random_coord
@@ -15,7 +26,7 @@
         IMPLICIT NONE
         CALL set_max_radius
 !DEBUG STARTS==============================================
-        PRINT *, "Max radius is", max_radius
+!       PRINT *, "Max radius is", max_radius
 !DEBUG ENDS==============================================
 !       CALL init_random_coord(atoms,coord)
         CALL init_random_improved(atoms,coord)
@@ -114,8 +125,23 @@
         CLOSE(f_random)
         
         END SUBROUTINE read_random_param
-! add adjust centroid subroutine here
-!       SUBROUTINE centroid
+
+        SUBROUTINE printout_random_param
+! printout parameters to generate random initial coordinates
+        IMPLICIT NONE
+        CHARACTER(LEN=22)    :: 
+     &    random_param_file = 'saved_param_random.dat'
+        INTEGER                  :: f_random
+        CHARACTER(LEN=2)         :: dummy
+
+        OPEN(NEWUNIT=f_random, FILE=random_param_file, STATUS='new')
+        WRITE(f_random,*) 'confining_radius_ratio', radius_ratio
+        WRITE(f_random,*) 'ref_radius', ref_radius
+        WRITE(f_random,*) 'is_fixed_radius', is_fixed_radius
+        WRITE(f_random,*) 'fixed_radius', fixed_radius
+        CLOSE(f_random)
+        
+        END SUBROUTINE printout_random_param
 
         SUBROUTINE set_max_radius
 ! set maximum radius based on radius parameters

@@ -1,8 +1,18 @@
         MODULE initialise
 
         INTEGER             :: total_mc_step
+        LOGICAL             :: is_multi_stage_potent
+        INTEGER             :: mc_step_1, mc_step_2
         INTEGER,PARAMETER   :: mc_save_step = 10
         
+
+        PRIVATE :: printout_session_in
+
+        PUBLIC  :: check_mc_step
+        PUBLIC  :: read_session
+        PUBLIC  :: read_params
+        PUBLIC  :: printout_session_feed
+
         CONTAINS
 
         SUBROUTINE check_mc_step(iteration)
@@ -28,6 +38,7 @@
 ! read session simulation parameters
         USE coord_grad_ene,     ONLY: atoms,material,in_file
         USE potential,          ONLY: potential_type
+     &    ,potent_1, potent_2
         IMPLICIT NONE
         CHARACTER(14)   :: session_file='session_in.dat'
         INTEGER         :: f_session
@@ -39,6 +50,13 @@
         READ(f_session,*) dummy, potential_type
         READ(f_session,*) dummy, total_mc_step
         READ(f_session,*) dummy, in_file
+        READ(f_session,*) dummy, is_multi_stage_potent
+        IF (is_multi_stage_potent) THEN
+          READ(f_session,*) dummy, potent_1
+          READ(f_session,*) dummy, mc_step_1
+          READ(f_session,*) dummy, potent_2
+          READ(f_session,*) dummy, mc_step_2
+        END IF
         CLOSE(f_session)
 
         END SUBROUTINE read_session
@@ -58,4 +76,47 @@
 
         END SUBROUTINE read_params
         
+        SUBROUTINE printout_session_feed
+! information are output in a file to allow a review of input /
+! parameters to perform the same calculation again when necessary
+        USE random_coord        ,ONLY: printout_random_param
+        USE monte               ,ONLY: printout_mc_param
+        USE basin_hopping       ,ONLY: printout_bh_param
+        IMPLICIT NONE
+        CALL printout_session_in
+        CALL printout_random_param
+        CALL printout_mc_param
+        CALL printout_bh_param
+
+        END SUBROUTINE printout_session_feed
+
+        SUBROUTINE printout_session_in
+! printout session file inputs
+        USE coord_grad_ene      ,ONLY: atoms,material,in_file
+        USE potential           ,ONLY: potential_type
+     &    ,potent_1, potent_2
+
+        IMPLICIT NONE
+        CHARACTER(20)   :: session_file='saved_session_in.dat'
+        INTEGER         :: f_session
+
+        OPEN(NEWUNIT=f_session,FILE=session_file,STATUS='new')
+        WRITE(f_session,'(A, T33, I8)') 'number_of_atoms', atoms 
+        WRITE(f_session,'(A, T33, 20A)') 'material_or_element', material
+        WRITE(f_session,'(A, T33, I8)') 'potential_type',potential_type
+        WRITE(f_session,'(A, T33, I8)') 'total_MC_steps', total_mc_step
+        WRITE(f_session,'(A, T33, 20A)') 'read_in_debug', in_file
+        WRITE(f_session,'(A, T33, L)') 'is_multi_stage_poten'
+     &  , is_multi_stage_potent
+        IF (is_multi_stage_potent) THEN
+          WRITE(f_session,'(A, T33, I8)') 'potent_1', potent_1
+          WRITE(f_session,'(A, T33, I8)') 'MC_step_1', mc_step_1
+          WRITE(f_session,'(A, T33, I8)') 'potent_2', potent_2
+          WRITE(f_session,'(A, T33, I8)') 'MC_step_2', mc_step_2
+        END IF
+        CLOSE(f_session)
+
+        END SUBROUTINE printout_session_in
+
+
         END MODULE initialise

@@ -228,7 +228,7 @@
       CALL EXECUTE_COMMAND_LINE(run_dftb)
       CALL read_dftb_optim_coord(natoms,out_coord)
 
-      IF (optim_ierr /= 0) out_coord = 0.0D0
+      IF (optim_ierr /= 0) out_coord = 0.0D0            !IMPORTANT! rethink about the effects of this line
       
       ! copy dftb output coordinates into out_coord
 

@@ -1,5 +1,6 @@
         PROGRAM main
         USE simulation          ,ONLY:simulate_BH
+     &    ,simulate_sampling
      &    ,set_up_universal
      &    ,test_eig_rotate
      &    ,test_cut_splice
@@ -31,9 +32,11 @@
 
 !       CALL test_cut_splice
 
-        CALL test_improved_random
+!       CALL test_improved_random
 
 !       CALL simulate_BH
+
+        CALL simulate_sampling
 
 
 !==============================================================

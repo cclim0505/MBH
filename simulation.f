@@ -1,21 +1,32 @@
         MODULE simulation
+
+        PRIVATE         :: prelim_sampling
+        PRIVATE         :: stage_sampling
+
+        PUBLIC          :: set_up_universal
+        PUBLIC          :: test_cut_splice
+        PUBLIC          :: test_eig_rotate
+        PUBLIC          :: test_improved_random
+        PUBLIC          :: simulate_BH
+        PUBLIC          :: simulate_sampling
+
         CONTAINS
+
 
         SUBROUTINE set_up_universal
 ! set up universal initial values across all MPI processes
         USE initialise          ,ONLY: read_session,read_params
+     &    ,printout_session_feed
         USE coord_grad_ene      ,ONLY: allocate_coord_gradient 
         IMPLICIT NONE
 
         CALL read_session
         CALL read_params
         CALL allocate_coord_gradient
+        CALL printout_session_feed
 
         END SUBROUTINE set_up_universal
 
-        SUBROUTINE test_align_then_cut
-        IMPLICIT NONE
-        END SUBROUTINE test_align_then_cut
 
         SUBROUTINE test_cut_splice
 ! testing cut and splice routine within process
@@ -188,7 +199,7 @@
         END SUBROUTINE test_improved_random
 
         SUBROUTINE simulate_BH
-! simulate basin-hopping optimization
+! simulate basin-hopping optimization with self cut and splice option
         USE constants           ,ONLY: DBL
         USE initialise          ,ONLY: total_mc_step,check_mc_step
         USE coord_grad_ene      ,ONLY: read_coord 
@@ -201,7 +212,7 @@
         USE random_coord        ,ONLY: set_random_coord
         USE optimization        ,ONLY: local_minim
      &    , optim_ierr
-        USE basin_hopping       ,ONLY: bhop_move
+        USE moves               ,ONLY: generate_config
         USE monte               ,ONLY: monte_carlo
         USE inertia             ,ONLY: calc_inertia_tensor
      &    ,print_inertia_tensor 
@@ -248,8 +259,7 @@
 
 
         DO iter=1,total_mc_step
-          ! IF condition to change MC, and basin hopping parameters  
-          CALL bhop_move
+          CALL generate_config(iter)
           CALL local_minim
           IF (optim_ierr == 0) THEN
             coord = optim_coord
@@ -274,8 +284,8 @@
         CALL print_lowest_ene           ! output lowest energy
 
 !DEBUG BEGINS==============================================
-        CALL calc_inertia_tensor(lowest_coord)
-        CALL print_inertia_tensor
+!       CALL calc_inertia_tensor(lowest_coord)
+!       CALL print_inertia_tensor
 !DEBUG ENDS==============================================
 
 !DEBUG BEGINS==============================================
@@ -295,5 +305,116 @@
 !DEBUG ENDS==============================================
 
         END SUBROUTINE simulate_BH
+
+
+        SUBROUTINE prelim_sampling
+        USE random_coord        ,ONLY: set_random_coord
+        USE optimization        ,ONLY: local_minim
+        USE coord_grad_ene      ,ONLY: coord,optim_coord,old_coord
+     &    , atoms
+     &    , energy, old_energy
+     &    , lowest_coord, lowest_energy
+        USE potential           ,ONLY: calc_energy
+
+        IMPLICIT NONE
+
+        CALL set_random_coord
+
+        CALL local_minim
+        coord = optim_coord
+        old_coord = coord
+        CALL calc_energy(coord,atoms,energy)
+        old_energy = energy
+
+        lowest_coord = old_coord
+        lowest_energy = old_energy
+
+        END SUBROUTINE prelim_sampling
+
+        SUBROUTINE stage_sampling(mc_steps)
+        USE moves               ,ONLY: generate_config
+        USE optimization        ,ONLY: local_minim
+     &    , optim_ierr
+        USE coord_grad_ene      ,ONLY: coord,optim_coord,old_coord
+     &    , atoms
+     &    , energy, old_energy
+     &    , print_local_coord
+        USE monte               ,ONLY: monte_carlo
+        USE potential           ,ONLY: calc_energy
+!DEBUG BEGINS==============================================
+!    &    , potential_type
+!DEBUG ENDS==============================================
+        USE initialise          ,ONLY: check_mc_step
+
+        IMPLICIT NONE
+        INTEGER,INTENT(IN)      :: mc_steps
+        INTEGER                 :: iter
+
+        DO iter=1,mc_steps
+!DEBUG BEGINS==============================================
+!       IF(potential_type==2) PRINT *, 'before genconfig '
+!DEBUG ENDS==============================================
+          CALL generate_config(iter)
+!DEBUG BEGINS==============================================
+!       IF(potential_type==2) PRINT *, 'after genconfig '
+!DEBUG ENDS==============================================
+          CALL local_minim
+          IF (optim_ierr == 0) THEN
+            coord = optim_coord
+            CALL calc_energy(coord,atoms,energy)
+            CALL print_local_coord
+            CALL monte_carlo
+          ELSE 
+            coord = old_coord 
+            energy = old_energy
+          END IF
+
+          CALL check_mc_step(iter)
+
+        END DO
+
+        END SUBROUTINE stage_sampling
+
+        SUBROUTINE simulate_sampling
+! simulate basin-hopping optimization with self cut and splice option
+        USE initialise          ,ONLY: total_mc_step,check_mc_step
+     &    , is_multi_stage_potent
+     &    , mc_step_1, mc_step_2
+        USE coord_grad_ene      ,ONLY: read_coord 
+     &    ,coord,optim_coord,old_coord,lowest_coord
+     &    ,energy,old_energy,lowest_energy,atoms
+     &    , print_coord,printout_xyz,print_lowest_coord
+     &    , print_lowest_ene 
+     &    , print_local_coord
+     &    , gradient
+        USE potential           ,ONLY: potential_type
+     &    , potent_1, potent_2
+        USE optimization        ,ONLY: local_minim
+
+
+        IMPLICIT NONE
+        INTEGER                 :: iter
+
+        IF (is_multi_stage_potent) THEN
+          potential_type = potent_1
+          total_mc_step = mc_step_1
+        END IF
+
+        CALL prelim_sampling
+        CALL stage_sampling(total_mc_step)
+
+
+        IF (is_multi_stage_potent) THEN
+          potential_type = potent_2
+          total_mc_step = mc_step_2
+          CALL local_minim
+          CALL stage_sampling(total_mc_step)
+        END IF
+
+
+        CALL print_lowest_coord         ! output lowest coord and energy
+        CALL print_lowest_ene           ! output lowest energy
+
+        END SUBROUTINE simulate_sampling
 
         END MODULE simulation

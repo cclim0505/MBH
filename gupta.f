@@ -6,20 +6,24 @@
         REAL(KIND=DBL)        :: q_ij
         REAL(KIND=DBL)        :: r_zero
         REAl(KIND=DBl),DIMENSION(:,:),ALLOCATABLE  :: distance !  distances matrix, for gupta band energy calculation
-        CONTAINS
 
-!=====================================================================
-! List of subroutines
-!
-!       calc_distance
-!       gupta_energy
-!       gupta_energy
-!       gupta_repulsive
-!       gupta_band
-!       set_rij_size
-!       gupta_gradient
-!       gupta_repulse_gradient
-!       gupta_band_gradient
+        PRIVATE  :: calc_distance
+        PRIVATE  :: gupta_repulsive
+        PRIVATE  :: gupta_band
+        PRIVATE  :: set_rij_size
+        PRIVATE  :: gupta_repulse_gradient
+        PRIVATE  :: gupta_band_gradient
+        PRIVATE  :: indv_gupta_repulsive
+        PRIVATE  :: indv_gupta_band
+
+        PUBLIC  :: read_gupta_param
+        PUBLIC  :: gupta_both_ene_grad
+        PUBLIC  :: gupta_energy
+        PUBLIC  :: gupta_gradient
+        PUBLIC  :: indv_gupta_energy
+
+
+        CONTAINS
 
         SUBROUTINE read_gupta_param
 ! read gupta potential parameters
