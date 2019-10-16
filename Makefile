@@ -3,6 +3,8 @@ PROGRAM = run.out
 #FC = gfortran
 #FFLAGS = -O -Wall -fbounds-check -g -Wno-uninitialized 
 
+VPATH = src
+
 ### mpifortran compilre options
 FC = mpifort
 FFLAGS = -llapack 
@@ -13,6 +15,7 @@ DRIVER = main
 SIMUL = simulation
 
 MPIVAR = mpi_var
+DIR = directory
 CONST = constants
 CGE = coord_grad_ene
 GUPTA = gupta
@@ -41,6 +44,7 @@ OPTIM = optimization
 
 ### OBJECT LIST
 OBJS = 	$(CONST).o\
+	$(DIR).o\
 	$(MPIVAR).o\
 	$(CGE).o\
 	$(GUPTA).o\
@@ -74,25 +78,28 @@ $(MPIVAR).o: $(MPIVAR).f
 $(CONST).o: $(CONST).f
 	$(FC) -c $(FFLAGS) $< 
 
+$(DIR).o: $(DIR).f
+	$(FC) -c $(FFLAGS) $< 
+
 $(CGE).o: $(CGE).f $(CONST).o
 	$(FC) -c $(FFLAGS) $< 
 
-$(GUPTA).o: $(GUPTA).f $(CONST).o
+$(GUPTA).o: $(GUPTA).f $(CONST).o $(DIR).o
 	$(FC) -c $(FFLAGS) $< 
 
 $(DFTB).o: $(DFTB).f $(CONST).o $(CGE).o
 	$(FC) -c $(FFLAGS) $< 
 
-$(RANDOM).o: $(RANDOM).f $(CONST).o $(CGE).o $(MPIVAR).o
+$(RANDOM).o: $(RANDOM).f $(CONST).o $(DIR).o $(CGE).o $(MPIVAR).o
 	$(FC) -c $(FFLAGS) $< 
 
 $(POTENT).o: $(POTENT).f $(CONST).o $(GUPTA).o $(DFTB).o
 	$(FC) -c $(FFLAGS) $< 
 
-$(BASIN).o: $(BASIN).f $(CONST).o $(CGE).o $(RANDOM).o $(GUPTA).o $(POTENT).o
+$(BASIN).o: $(BASIN).f $(CONST).o $(DIR).o $(CGE).o $(RANDOM).o $(GUPTA).o $(POTENT).o
 	$(FC) -c $(FFLAGS) $< 
 
-$(MONTE).o: $(MONTE).f $(CONST).o $(CGE).o
+$(MONTE).o: $(MONTE).f $(CONST).o $(DIR).o $(CGE).o
 	$(FC) -c $(FFLAGS) $< 
 
 $(INERTIA).o: $(INERTIA).f $(CONST).o $(CGE).o
@@ -107,7 +114,7 @@ $(MOVES).o: $(MOVES).f $(BASIN).o $(SPLICE).o $(MONTE).o
 $(ARRMAT).o: $(ARRMAT).f $(CONST).o $(CGE).o
 	$(FC) -c $(FFLAGS) $< 
 
-$(INIT).o: $(INIT).f $(CGE).o $(POTENT).o $(GUPTA).o $(RANDOM).o $(MONTE).o $(BASIN).o
+$(INIT).o: $(INIT).f $(DIR).o  $(CGE).o $(POTENT).o $(GUPTA).o $(RANDOM).o $(MONTE).o $(BASIN).o
 	$(FC) -c $(FFLAGS) $< 
 
 $(BLAS).o: $(BLAS).f 
@@ -132,8 +139,9 @@ $(SIMUL).o: $(SIMUL).f $(INIT).o $(CGE).o $(CONST).o $(SPLICE).o $(INERTIA).o $(
 $(DRIVER).o: $(DRIVER).f $(SIMUL).o $(MPIVAR).o
 	$(FC) -c $(FFLAGS) $< 
 
-clean :
+clean:
 	rm *.o
 	rm *.mod
+cleaner:
 	rm run.out
 
