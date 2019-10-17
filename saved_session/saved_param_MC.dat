@@ -1,0 +1,5 @@
+ temperature_ratio  0.8000000    
+ acceptance_ratio  0.5000000    
+ is_cut_splice T
+ pre_cut_splice_period         150
+ cut_splice_freq          10

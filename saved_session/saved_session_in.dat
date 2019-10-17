@@ -1,0 +1,10 @@
+ number_of_atoms                      10
+ material_or_element            Au
+ potential_type                        2
+************************************************************
+ is_resume_calc                  F
+ total_MC_steps                      500
+ mc_save_step                         10
+ read_in_debug                  Au10.xyz          
+************************************************************
+ is_multi_stage_poten            F

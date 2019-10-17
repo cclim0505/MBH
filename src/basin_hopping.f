@@ -68,7 +68,7 @@
         do_angle_disp = .FALSE.
         CALL sort_energies(do_angle_disp,atom_index)
 !DEBUG BEGINS==============================================
-        IF(potential_type==2) PRINT *, 'after sort_energies'
+!       IF(potential_type==2) PRINT *, 'after sort_energies'
 !DEBUG ENDS==============================================
 
         IF (do_angle_disp .EQV. .TRUE.) THEN
@@ -199,7 +199,7 @@
 !DEBUG BEGINS==============================================
 !       PRINT *, "highest_ene =" , highest_ene
 !       PRINT *, "lowest_ene =" , lowest_ene
-        PRINT *, "highest_index =" , highest_index
+!       PRINT *, "highest_index =" , highest_index
 !DEBUG ENDS==============================================
 
         lowest_ene = ABS(lowest_ene) * DBLE(energy_compare_ratio)

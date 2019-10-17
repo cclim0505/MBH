@@ -1,8 +1,8 @@
 #!/bin/bash
 #PBS -N master_test
 #PBS -q ctest
-#PBS -l select=1:ncpus=40:mpiprocs=10
-#PBS -l walltime=00:02:00
+#PBS -l select=2:ncpus=40:mpiprocs=10
+#PBS -l walltime=00:30:00
 #PBS -P MST108099
 #PBS -o PBS.log
 #PBS -e PBS.err

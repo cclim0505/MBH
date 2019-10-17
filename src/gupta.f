@@ -28,11 +28,15 @@
         SUBROUTINE read_gupta_param
 ! read gupta potential parameters
         USE directory           ,ONLY: gupta_dir
+        USE coord_grad_ene      ,ONLY: material
         IMPLICIT NONE
-        INTEGER         :: f_gupta
+        INTEGER                 :: f_gupta
+        CHARACTER(LEN=4)        :: mat
+
+        mat = material//material
 
         OPEN (NEWUNIT=f_gupta
-     &    ,FILE='./'//gupta_dir//'/'//'AuAu_parameter1.dat'
+     &    ,FILE='./'//gupta_dir//'/'//mat//'_parameter1.dat'
      &    ,STATUS='old')
         READ(f_gupta,*) a_ij, eta, p_ij, q_ij, r_zero
         CLOSE(f_gupta)

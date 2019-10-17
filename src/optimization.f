@@ -200,6 +200,9 @@
       CONTAINS
 
       SUBROUTINE local_minim
+! perform local minimizaiton on input coordinates
+! input coordinates are not updated, BUT only outputs optimized
+! coordinates
       IMPLICIT NONE
 
       optim_ierr = 0

@@ -1,0 +1,72 @@
+Geometry =GenFormat {
+ <<< "dftb.gen"
+}
+Driver = LBFGS {
+   Memory = 20
+   MovedAtoms = 1:-1
+   MaxForceComponent = 1e-4
+   MaxSteps = 400
+   OutputPrefix = "geo_end"
+   AppendGeometries = No
+#  Constraints = {
+#    LatticeOpt = No
+#    FixAngles = No
+#    Isotropic = No
+#    Pressure = 0.0
+#    ConvergentForcesOnly = Yes
+#  }
+ }
+Hamiltonian = DFTB {
+  SCC = Yes
+  SCCTolerance = 1.0e-5
+  MaxSCCIterations = 500
+  Mixer = Broyden {
+    MixingParameter = 0.2
+  }
+  SpinPolarisation = Colinear{
+    UnpairedElectrons = 0.0
+  }
+  SlaterKosterFiles = Type2FileNames {
+    Prefix = "./"
+    Separator = "-"
+    Suffix = ".skf"
+  }
+  MaxAngularMomentum = {
+    Ag = "d"
+  }
+  Charge = 0.000000
+  Filling = Fermi {
+    Temperature[K] = 0
+  }
+  OrbitalResolvedSCC = Yes
+  SpinConstants = {
+    Ag = {
+ # Wss Wsp Wps Wpp
+  -0.0135      -0.0109    -0.0033
+  -0.0109      -0.0394    -0.0009
+  -0.0033      -0.0009    -0.0121 
+    }
+  }
+}
+Options = {
+  AtomResolvedEnergies = Yes
+  WriteEigenvectors = No
+  WriteAutotestTag = No
+  WriteDetailedXML = No
+  WriteResultsTag = Yes 
+  WriteDetailedOut = Yes
+  WriteBandOut = No
+  RandomSeed = 0
+  WriteHS = No
+  WriteRealHS = No
+  MinimiseMemoryUsage = No
+  CalculateForces = Yes
+}
+
+ParserOptions = {
+  ParserVersion = 4
+  WriteHSDInput = No
+  WriteXMLInput = No
+  StopAfterParsing = No
+  IgnoreUnprocessedNodes = No
+}

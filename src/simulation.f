@@ -205,12 +205,18 @@
         SUBROUTINE set_up_resume_calc
         USE initialise          ,ONLY: read_resume_mc_step
         USE coord_grad_ene      ,ONLY: read_resume_coord_ene
+     &    , coord,optim_coord,atoms,energy
+        USE optimization        ,ONLY: local_minim
+        USE potential           ,ONLY: calc_energy
 ! set up resume previous calculation
 ! loading previous coordinates, energies and MC step
         IMPLICIT NONE
 
         CALL read_resume_mc_step
         CALL read_resume_coord_ene
+        CALL local_minim        ! make sure new coordinates give energies
+        coord = optim_coord
+        CALL calc_energy(coord,atoms,energy)
 
 !DEBUG STARTS=================================================
 !         PRINT *, 'finishes set up resume calc'

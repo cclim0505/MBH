@@ -1,6 +1,12 @@
         MODULE random_coord
         USE constants           ,ONLY:SGL,DBL,PI
-        USE coord_grad_ene      ,ONLY:atoms,coord
+        USE coord_grad_ene      ,ONLY:atoms,coord,material
+
+        REAL(KIND=SGL),PARAMETER        :: Au_ref_radius = 4.08
+        REAL(KIND=SGL),PARAMETER        :: Ag_ref_radius = 4.09
+        REAL(KIND=SGL),PARAMETER        :: Cu_ref_radius = 3.61
+        REAL(KIND=SGL),PARAMETER        :: C_ref_radius  = 3.57
+
         REAL(KIND=SGL)  ::      radius_ratio
         REAL(KIND=SGL)  ::      ref_radius
         LOGICAL         ::      is_fixed_radius
@@ -13,6 +19,7 @@
         PRIVATE          :: init_random_improved
         PRIVATE          :: set_max_radius
         PRIVATE          :: init_random_coord
+        PRIVATE          :: set_ref_radius
 
         PUBLIC          :: set_random_coord
         PUBLIC          :: read_random_param
@@ -20,6 +27,24 @@
         PUBLIC          :: printout_random_param
 
         CONTAINS
+
+
+        SUBROUTINE set_ref_radius
+        IMPLICIT NONE
+
+        SELECT CASE (material) 
+        CASE('Au')
+          ref_radius = Au_ref_radius
+        CASE('Ag')
+          ref_radius = Ag_ref_radius
+        CASE('Cu')
+          ref_radius = Cu_ref_radius
+        CASE('C')
+          ref_radius = C_ref_radius
+        END SELECT
+
+        END SUBROUTINE set_ref_radius
+
 
         SUBROUTINE set_random_coord
 ! main subroutine to set up random initial coordinates of cluster
@@ -151,6 +176,7 @@
         SUBROUTINE set_max_radius
 ! set maximum radius based on radius parameters
         IMPLICIT NONE
+        CALL set_ref_radius
         IF (is_fixed_radius) THEN
           max_radius = fixed_radius
         ELSE
