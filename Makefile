@@ -84,7 +84,7 @@ $(DIR).o: $(DIR).f
 $(CGE).o: $(CGE).f $(CONST).o
 	$(FC) -c $(FFLAGS) $< 
 
-$(GUPTA).o: $(GUPTA).f $(CONST).o $(DIR).o
+$(GUPTA).o: $(GUPTA).f $(CONST).o $(DIR).o $(CGE).o
 	$(FC) -c $(FFLAGS) $< 
 
 $(DFTB).o: $(DFTB).f $(CONST).o $(CGE).o

@@ -8,7 +8,7 @@ fixed_radius 			 3.0		in angstroms, minimum is 1.0
 
 
 Reference radius for different elements
-Au				4.0782
-Ag				??????
-Cu
-C
+Au				4.08
+Ag				4.09
+Cu				3.61
+C				3.57	diamond FCC
