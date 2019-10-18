@@ -2,6 +2,7 @@
 
 natoms=$(awk 'NR==1 {print $2}' ./session_param/session_in.dat)
 let natoms=$natoms+2
+alldir='worker???'
 
 out_folder='worker_collected'
 out_coord='lowest_coord.xyz'
@@ -13,11 +14,15 @@ rm -r $out_folder
 mkdir $out_folder
 
 
-cat worker???/$lowest_coord > ./$out_folder/$out_coord
-cat worker???/$lowest_ene > ./$out_folder/$out_ene
+cat $alldir/$lowest_coord > ./$out_folder/$out_coord
+cat $alldir/$lowest_ene > ./$out_folder/$out_ene
 
 
+notdone_ene='01_resume_lowest_ene.dat'
+ene_out='01_unfinished_lowest_ene.dat'
 notdone_coord='01_resume_lowest_coord.xyz'
-notdone_out='01_unfinished_last_coord.xyz'
+coord_out='01_unfinished_last_coord.xyz'
+
 #tail --lines=$natoms worker???/$notdone_coord > ./$out_folder/$notdone_out
-cat worker???/$notdone_coord > ./$out_folder/$notdone_out
+cat $alldir/$notdone_coord > ./$out_folder/$coord_out
+cat $alldir/$notdone_ene > ./$out_folder/$ene_out
