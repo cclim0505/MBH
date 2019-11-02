@@ -7,6 +7,7 @@ prod='99_prod_MBH'
 
 mkdir $prod
 cp *.sh ./$prod
+cp *.py ./$prod
 cp *.out ./$prod
 cp README* ./$prod
 cp -r 00_worker* ./$prod
