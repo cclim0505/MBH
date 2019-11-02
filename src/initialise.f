@@ -119,9 +119,10 @@
         USE random_coord        ,ONLY: read_random_param
         USE monte               ,ONLY: read_mc_param
         USE basin_hopping       ,ONLY: read_bh_param
+        USE potential           ,ONLY: potential_type
         IMPLICIT NONE
 
-        CALL read_gupta_param
+        IF (potential_type == 1)CALL read_gupta_param
         CALL read_random_param
         CALL read_mc_param
         CALL read_bh_param

@@ -10,6 +10,7 @@ cp *.sh ./$prod
 cp *.out ./$prod
 cp README* ./$prod
 cp -r 00_worker* ./$prod
+cp -r 00_check* ./$prod
 cp -r param* ./$prod/
 cp -r *session* ./$prod
 

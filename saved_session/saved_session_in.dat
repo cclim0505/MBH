@@ -1,6 +1,6 @@
  number_of_atoms                      10
  material_or_element            Au
- potential_type                        2
+ potential_type                        1
 ************************************************************
  is_resume_calc                  F
  total_MC_steps                      500

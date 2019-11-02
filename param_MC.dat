@@ -1,5 +1,0 @@
-temperature_ratio		0.8
-acceptance_ratio		0.5
-is_cut_splice			.FALSE.		! activate cut and splice
-pre_cut_splice_period		150		! MC moves before cut and splice is used
-cut_splice_freq			10		! frequency of performing cut and splice
