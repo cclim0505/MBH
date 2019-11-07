@@ -7,6 +7,7 @@
         REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE  :: old_coord
         REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE  :: optim_coord
         REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE  :: lowest_coord
+        INTEGER                                    :: lowest_step
 
         REAL(KIND=DBL),DIMENSION(:,:),ALLOCATABLE  :: gradient
 
@@ -198,9 +199,10 @@
 
         END SUBROUTINE printout_xyz
 
-        SUBROUTINE print_update_lowest_coord
+        SUBROUTINE print_update_lowest_coord(step)
 ! update the lowest energy coordinate from time to time
         IMPLICIT NONE
+        INTEGER,INTENT(IN)      :: step
         CHARACTER(LEN=24) :: filename='02_all_lowest_coords.xyz'
         INTEGER           :: iter
         INTEGER           :: f_out
@@ -208,7 +210,7 @@
         OPEN(NEWUNIT=f_out,FILE=TRIM(filename),ACCESS='append')
 
         WRITE(f_out,*) atoms
-        WRITE(f_out,*) lowest_energy
+        WRITE(f_out,*) lowest_energy, "step: ", step
         DO iter=1,atoms
           WRITE(f_out,*) material,lowest_coord(1,iter),
      &      lowest_coord(2,iter) ,lowest_coord(3,iter)
@@ -228,7 +230,7 @@
         OPEN(NEWUNIT=f_out,FILE=TRIM(filename),STATUS='replace')
 
         WRITE(f_out,*) atoms
-        WRITE(f_out,*) lowest_energy
+        WRITE(f_out,*) lowest_energy, "step: ", lowest_step
         DO iter=1,atoms
           WRITE(f_out,*) material,lowest_coord(1,iter),
      &      lowest_coord(2,iter) ,lowest_coord(3,iter)
@@ -238,9 +240,10 @@
 
         END SUBROUTINE print_lowest_coord
 
-        SUBROUTINE resume_print_lowest_coord
+        SUBROUTINE resume_print_lowest_coord(step)
 ! print out the lowest energy coordinate
         IMPLICIT NONE
+        INTEGER,INTENT(IN)      :: step
         CHARACTER(LEN=26) :: filename
         INTEGER           :: iter
         INTEGER           :: f_out
@@ -250,7 +253,7 @@
      &    ,STATUS='replace')
 
         WRITE(f_out,*) atoms
-        WRITE(f_out,*) lowest_energy
+        WRITE(f_out,*) lowest_energy, "step: ", step
         DO iter=1,atoms
           WRITE(f_out,*) material,lowest_coord(1,iter),
      &      lowest_coord(2,iter) ,lowest_coord(3,iter)

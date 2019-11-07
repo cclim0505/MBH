@@ -49,8 +49,11 @@ f.close()
 
 
 outfile = 'lowest_struct.xyz'
-struct[1] = 'ene (ev) = ' + str(low_ene) \
-	    + '\tfrom ' + low_folder + '\n'
+#struct[1] = 'ene (ev) = ' + str(low_ene) \
+#	    + '\tfrom ' + low_folder + '\n'
+
+struct[1] = struct[1][:-1]
+struct[1] = struct[1] + ' from ' + low_folder + '\n'
 
 f = open(final_folder + '/' + outfile, 'w')
 for line in struct:

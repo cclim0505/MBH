@@ -1,7 +1,7 @@
         MODULE monte
         USE constants           ,ONLY:SGL,DBL
         USE coord_grad_ene      ,ONLY: energy,old_energy 
-     &    ,lowest_energy
+     &    ,lowest_energy, lowest_step
      &    ,coord,old_coord,lowest_coord
      &    ,print_ene_dat,print_update_lowest_coord
      &    ,resume_print_lowest_coord
@@ -61,15 +61,16 @@
         
         END SUBROUTINE printout_mc_param
 
-        SUBROUTINE monte_carlo
+        SUBROUTINE monte_carlo(step)
 ! Monte Carlo simulation to accept or reject new configuration
         IMPLICIT NONE
+        INTEGER,INTENT(IN)      :: step
 !       REAL(KIND=SGL)  ::      rnum
         LOGICAL         ::      is_accept
         REAL(KIND=DBL)  ::      energy_diff
         REAL(KIND=SGL)  ::      prob_diff
 
-        CALL assign_lowest_energy_coord
+        CALL assign_lowest_energy_coord(step)
 
         is_accept = .FALSE.
         energy_diff = energy - old_energy
@@ -100,15 +101,17 @@
 
         END SUBROUTINE monte_carlo
 
-        SUBROUTINE assign_lowest_energy_coord
+        SUBROUTINE assign_lowest_energy_coord(step)
 ! update coordinates with lower energy when condition is met
         IMPLICIT NONE
+        INTEGER,INTENT(IN)      :: step
 
         IF (energy < lowest_energy) THEN
           lowest_energy = energy
           lowest_coord = coord
-          CALL print_update_lowest_coord
-          CALL resume_print_lowest_coord
+          lowest_step  = step
+          CALL print_update_lowest_coord(step)
+          CALL resume_print_lowest_coord(step)
         END IF
 
         END SUBROUTINE assign_lowest_energy_coord

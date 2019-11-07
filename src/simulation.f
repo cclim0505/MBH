@@ -101,7 +101,7 @@
 !DEBUG ENDS==============================================
 
             CALL print_local_coord
-            CALL monte_carlo
+            CALL monte_carlo(iter)
           ELSE 
             coord = old_coord 
             energy = old_energy
@@ -191,7 +191,7 @@
             coord = optim_coord
             CALL calc_energy(coord,atoms,energy)
             CALL print_local_coord
-            CALL monte_carlo
+            CALL monte_carlo(iter)
           ELSE 
             coord = old_coord 
             energy = old_energy
