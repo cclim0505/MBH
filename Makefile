@@ -20,6 +20,7 @@ CONST = constants
 CGE = coord_grad_ene
 GUPTA = gupta
 DFTB = ene_dftb
+ADF = ene_adf
 RANDOM = random_coord
 POTENT = potential
 BASIN = basin_hopping
@@ -49,6 +50,7 @@ OBJS = 	$(CONST).o\
 	$(CGE).o\
 	$(GUPTA).o\
 	$(DFTB).o\
+	$(ADF).o\
 	$(RANDOM).o\
 	$(POTENT).o\
 	$(BASIN).o\
@@ -88,6 +90,9 @@ $(GUPTA).o: $(GUPTA).f $(CONST).o $(DIR).o $(CGE).o
 	$(FC) -c $(FFLAGS) $< 
 
 $(DFTB).o: $(DFTB).f $(CONST).o $(CGE).o
+	$(FC) -c $(FFLAGS) $< 
+
+$(ADF).o: $(ADF).f $(CONST).o $(CGE).o
 	$(FC) -c $(FFLAGS) $< 
 
 $(RANDOM).o: $(RANDOM).f $(CONST).o $(DIR).o $(CGE).o $(MPIVAR).o
