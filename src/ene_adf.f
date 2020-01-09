@@ -1,11 +1,55 @@
         MODULE adf
         USE constants           ,ONLY:DBL
-        USE coord_grad_ene      ,ONLY:coord, material
+        USE coord_grad_ene      ,ONLY:coord, material, energy
+
+        PUBLIC  :: test_adf
+        PUBLIC  :: test_adf_2
+
+
+        PUBLIC  :: run_adf_calc
 
         PUBLIC  :: gen_adf_xyz
         PUBLIC  :: read_adf_xyz
         PUBLIC  :: read_adf_energy
+
+
+
         CONTAINS
+
+        SUBROUTINE test_adf
+        IMPLICIT NONE
+
+        CALL read_adf_xyz(coord)        ! read given coord
+        CALL gen_adf_xyz(coord)         ! gen given coord
+        CALL run_adf_calc               ! run ADF calculation
+
+        CALL gen_adf_xyz(coord)         ! gen final_coord
+
+        CALL read_adf_energy(energy)
+        PRINT *, 'energy is', energy
+
+        END SUBROUTINE test_adf
+
+
+        SUBROUTINE test_adf_2
+        IMPLICIT NONE
+
+        END SUBROUTINE test_adf_2
+
+        SUBROUTINE run_adf_calc
+        IMPLICIT NONE
+        CHARACTER(LEN=6)       :: in_file='adf.in'
+        CHARACTER(LEN=7)       :: out_file='adf.out'
+        CHARACTER(LEN=22)      :: run_command
+
+        run_command = 'adf < '//in_file//' > '//out_file
+
+        CALL EXECUTE_COMMAND_LINE(run_command)
+! adf < adf_in > adf_out
+
+        END SUBROUTINE run_adf_calc
+
+
 
         SUBROUTINE gen_adf_xyz(x_coord)
         IMPLICIT NONE
@@ -31,7 +75,7 @@
         IMPLICIT NONE
         REAL(KIND=DBL),DIMENSION(:,:),INTENT(INOUT)    :: x_coord
         CHARACTER(LEN=14)               :: filename='adf_output.xyz'
-        CHARACTER(LEN=2)        :: dummy
+        CHARACTER(LEN=1)        :: dummy
         INTEGER :: natoms
         INTEGER :: iter
         INTEGER :: f_in

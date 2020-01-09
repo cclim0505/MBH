@@ -5,7 +5,7 @@
      &    ,test_eig_rotate
      &    ,test_cut_splice
      &    ,test_improved_random
-
+        USE adf                 ,ONLY:test_adf
 !==============================================================
 !       MPI OPTIONS
         USE mpi
@@ -36,7 +36,15 @@
 
 !       CALL simulate_BH
 
-        CALL simulate_sampling
+!       CALL simulate_sampling  ! main subroutine
+
+
+
+!==============================================================
+!       Testing for ADF
+        CALL test_adf
+!==============================================================
+
 
 
 !==============================================================
