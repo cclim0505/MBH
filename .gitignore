@@ -1,0 +1,9 @@
+# ignore PBS output files and worker folderswhen testing
+PBS.*
+worker0*
+
+# ignore executable
+*.out
+
+# ignore iterate output from LBFGS
+iterate.dat
