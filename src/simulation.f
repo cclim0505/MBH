@@ -28,113 +28,6 @@
 
         END SUBROUTINE set_up_universal
 
-        SUBROUTINE simulate_BH
-! simulate basin-hopping optimization with self cut and splice option
-        USE constants           ,ONLY: DBL
-        USE initialise          ,ONLY: total_mc_step
-     &    , periodic_save_mc_step
-        USE coord_grad_ene      ,ONLY: read_coord 
-     &    ,coord,optim_coord,old_coord,lowest_coord
-     &    ,energy,old_energy,lowest_energy,atoms
-     &    , print_coord,printout_xyz,print_lowest_coord
-     &    , print_lowest_ene 
-     &    , print_local_coord
-     &    , gradient
-        USE random_coord        ,ONLY: set_random_coord
-        USE optimization        ,ONLY: local_minim
-     &    , optim_ierr
-        USE moves               ,ONLY: generate_config
-        USE monte               ,ONLY: monte_carlo
-        USE inertia             ,ONLY: calc_inertia_tensor
-     &    ,print_inertia_tensor 
-        USE potential           ,ONLY: calc_energy
-
-
-!DEBUG BEGINS==============================================
-!       USE dftb                ,ONLY: coord_2_gen,dftb_energy
-!    &    ,dftb_gradient, dftb_both_ene_grad
-!DEBUG ENDS==============================================
-
-        IMPLICIT NONE
-        INTEGER                 :: iter
-
-!DEBUG BEGINS==============================================
-!       CALL read_coord
-!       CALL calc_energy(coord,atoms,energy)
-!       PRINT *, 'ground_state is ', energy
-!       CALL printout_xyz('3input.xyz',coord)
-!DEBUG ENDS==============================================
-
-
-        CALL set_random_coord
-
-
-!DEBUG BEGINS==============================================
-!       CALL print_coord
-!       CALL printout_xyz('1aa.xyz',coord)
-!DEBUG ENDS==============================================
-
-        CALL local_minim
-        coord = optim_coord
-        old_coord = coord
-        CALL calc_energy(coord,atoms,energy)
-        old_energy = energy
-
-        lowest_coord = old_coord
-        lowest_energy = old_energy
-
-!DEBUG BEGINS==============================================
-!       CALL print_coord
-!       CALL printout_xyz('1bb.xyz',coord)
-!DEBUG ENDS==============================================
-
-
-        DO iter=1,total_mc_step
-          CALL generate_config(iter)
-          CALL local_minim
-          IF (optim_ierr == 0) THEN
-            coord = optim_coord
-            CALL calc_energy(coord,atoms,energy)
-
-!DEBUG BEGINS==============================================
-!         CALL printout_xyz('2serial.xyz',coord)
-!DEBUG ENDS==============================================
-
-            CALL print_local_coord
-            CALL monte_carlo(iter)
-          ELSE 
-            coord = old_coord 
-            energy = old_energy
-          END IF
-
-          CALL periodic_save_mc_step(iter)
-        END DO
-
-        CALL print_lowest_coord         ! output lowest coord and energy
-        CALL print_lowest_ene           ! output lowest energy
-
-!DEBUG BEGINS==============================================
-!       CALL calc_inertia_tensor(lowest_coord)
-!       CALL print_inertia_tensor
-!DEBUG ENDS==============================================
-
-!DEBUG BEGINS==============================================
-!       PRINT *, 'lowest energy is ', lowest_energy
-!       CALL printout_xyz('4MBH_result.xyz',coord)
-!DEBUG ENDS==============================================
-
-
-!DEBUG BEGINS==============================================
-!       CALL coord_2_gen(coord,atoms)
-!       CALL dftb_both_ene_grad(coord,atoms,energy,gradient)
-!       CALL dftb_energy(coord,atoms,energy) 
-!       PRINT *, 'dftb energy is', energy
-!       CALL dftb_gradient(coord,atoms,gradient)
-!       PRINT *, 'dftb gradient is' 
-!       PRINT *, gradient
-!DEBUG ENDS==============================================
-
-        END SUBROUTINE simulate_BH
 
 
         SUBROUTINE prelim_sampling
@@ -277,8 +170,16 @@
 
         END SUBROUTINE simulate_sampling
 
+
+
+
+
+!=====================================================================
+! Following are test subroutines for cut and splice
+!=====================================================================
+
         SUBROUTINE test_cut_splice
-! testing cut and splice routine within process
+! Testing cut and splice routine within process
         USE constants           ,ONLY:DBL,PI
         USE coord_grad_ene      ,ONLY:coord,atoms
      &    ,read_single_coord
@@ -436,6 +337,133 @@
 
         END SUBROUTINE test_eig_rotate
 
+!=====================================================================
+! End of test subroutines for cut and splice
+!=====================================================================
+
+!=====================================================================
+! Following is old subroutine to simulate BH with cut and splice.
+!=====================================================================
+
+        SUBROUTINE simulate_BH
+! Old subroutine
+! simulate basin-hopping optimization with self cut and splice option
+        USE constants           ,ONLY: DBL
+        USE initialise          ,ONLY: total_mc_step
+     &    , periodic_save_mc_step
+        USE coord_grad_ene      ,ONLY: read_coord 
+     &    ,coord,optim_coord,old_coord,lowest_coord
+     &    ,energy,old_energy,lowest_energy,atoms
+     &    , print_coord,printout_xyz,print_lowest_coord
+     &    , print_lowest_ene 
+     &    , print_local_coord
+     &    , gradient
+        USE random_coord        ,ONLY: set_random_coord
+        USE optimization        ,ONLY: local_minim
+     &    , optim_ierr
+        USE moves               ,ONLY: generate_config
+        USE monte               ,ONLY: monte_carlo
+        USE inertia             ,ONLY: calc_inertia_tensor
+     &    ,print_inertia_tensor 
+        USE potential           ,ONLY: calc_energy
+
+
+!DEBUG BEGINS==============================================
+!       USE dftb                ,ONLY: coord_2_gen,dftb_energy
+!    &    ,dftb_gradient, dftb_both_ene_grad
+!DEBUG ENDS==============================================
+
+        IMPLICIT NONE
+        INTEGER                 :: iter
+
+!DEBUG BEGINS==============================================
+!       CALL read_coord
+!       CALL calc_energy(coord,atoms,energy)
+!       PRINT *, 'ground_state is ', energy
+!       CALL printout_xyz('3input.xyz',coord)
+!DEBUG ENDS==============================================
+
+
+        CALL set_random_coord
+
+
+!DEBUG BEGINS==============================================
+!       CALL print_coord
+!       CALL printout_xyz('1aa.xyz',coord)
+!DEBUG ENDS==============================================
+
+        CALL local_minim
+        coord = optim_coord
+        old_coord = coord
+        CALL calc_energy(coord,atoms,energy)
+        old_energy = energy
+
+        lowest_coord = old_coord
+        lowest_energy = old_energy
+
+!DEBUG BEGINS==============================================
+!       CALL print_coord
+!       CALL printout_xyz('1bb.xyz',coord)
+!DEBUG ENDS==============================================
+
+
+        DO iter=1,total_mc_step
+          CALL generate_config(iter)
+          CALL local_minim
+          IF (optim_ierr == 0) THEN
+            coord = optim_coord
+            CALL calc_energy(coord,atoms,energy)
+
+!DEBUG BEGINS==============================================
+!         CALL printout_xyz('2serial.xyz',coord)
+!DEBUG ENDS==============================================
+
+            CALL print_local_coord
+            CALL monte_carlo(iter)
+          ELSE 
+            coord = old_coord 
+            energy = old_energy
+          END IF
+
+          CALL periodic_save_mc_step(iter)
+        END DO
+
+        CALL print_lowest_coord         ! output lowest coord and energy
+        CALL print_lowest_ene           ! output lowest energy
+
+!DEBUG BEGINS==============================================
+!       CALL calc_inertia_tensor(lowest_coord)
+!       CALL print_inertia_tensor
+!DEBUG ENDS==============================================
+
+!DEBUG BEGINS==============================================
+!       PRINT *, 'lowest energy is ', lowest_energy
+!       CALL printout_xyz('4MBH_result.xyz',coord)
+!DEBUG ENDS==============================================
+
+
+!DEBUG BEGINS==============================================
+!       CALL coord_2_gen(coord,atoms)
+!       CALL dftb_both_ene_grad(coord,atoms,energy,gradient)
+!       CALL dftb_energy(coord,atoms,energy) 
+!       PRINT *, 'dftb energy is', energy
+!       CALL dftb_gradient(coord,atoms,gradient)
+!       PRINT *, 'dftb gradient is' 
+!       PRINT *, gradient
+!DEBUG ENDS==============================================
+
+        END SUBROUTINE simulate_BH
+
+
+!=====================================================================
+! End of old subroutine to simulate BH with cut and splice.
+!=====================================================================
+
+
+!=====================================================================
+! Following is a subroutine to test improved random coordinate generator
+!=====================================================================
+
         SUBROUTINE test_improved_random
 ! testing improved version for initializing random coordinates
         USE coord_grad_ene        ,ONLY:coord,printout_xyz
@@ -446,5 +474,8 @@
         CALL printout_xyz('improved_random.xyz',coord)
 
         END SUBROUTINE test_improved_random
+!=====================================================================
+! End of subroutine to test improved random coordinate generator
+!=====================================================================
 
         END MODULE simulation

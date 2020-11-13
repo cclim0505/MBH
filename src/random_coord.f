@@ -108,6 +108,7 @@
 
         REAL(KIND=DBL)          :: min_dist
 
+! Assign first atom
         CALL get_random3(random_3)
 
         x_coord(1,1) = max_radius * random_3(1)
@@ -116,6 +117,7 @@
 
         CALL polar_2_cartesian(x_coord(:,1))
 
+! Assign the rest
         iter = 2
         DO
           IF (iter > natoms) EXIT
@@ -198,7 +200,33 @@
 
         END FUNCTION sphere_radius
 
+
+        SUBROUTINE polar_2_cartesian(x_coord)
+! change polar coordinates to cartesian coordinates
+        IMPLICIT NONE
+        REAL(KIND=DBL),DIMENSION(3),INTENT(INOUT)  :: x_coord
+        REAL(KIND=SGL)    :: r, theta, phi
+        REAL(KIND=SGL)    :: x, y, z
+
+        r = REAL(x_coord(1))
+        theta = REAL(x_coord(2))
+        phi = REAL(x_coord(3))
+
+        x = r*SIN(theta)*COS(phi)
+        y = r*SIN(theta)*SIN(phi)
+        z = r*COS(theta)
+        
+        x_coord(1) = x
+        x_coord(2) = y
+        x_coord(3) = z
+        END SUBROUTINE polar_2_cartesian
+
+!=====================================================================
+! Following functions/subroutines are not used
+!=====================================================================
+
         SUBROUTINE init_random_coord(natoms,x_coord)
+! Old random coordinates generator, not used.
         USE mpi_var             ,ONLY: myid
 ! initialise random coordinates
         IMPLICIT NONE
@@ -233,25 +261,5 @@
 !DEBUG ENDS==============================================
 
         END SUBROUTINE init_random_coord
-
-        SUBROUTINE polar_2_cartesian(x_coord)
-! change polar coordinates to cartesian coordinates
-        IMPLICIT NONE
-        REAL(KIND=DBL),DIMENSION(3),INTENT(INOUT)  :: x_coord
-        REAL(KIND=SGL)    :: r, theta, phi
-        REAL(KIND=SGL)    :: x, y, z
-
-        r = REAL(x_coord(1))
-        theta = REAL(x_coord(2))
-        phi = REAL(x_coord(3))
-
-        x = r*SIN(theta)*COS(phi)
-        y = r*SIN(theta)*SIN(phi)
-        z = r*COS(theta)
-        
-        x_coord(1) = x
-        x_coord(2) = y
-        x_coord(3) = z
-        END SUBROUTINE polar_2_cartesian
 
         END MODULE random_coord
