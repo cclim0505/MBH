@@ -30,6 +30,7 @@
 
 
         SUBROUTINE set_ref_radius
+! not used at the moment.
         IMPLICIT NONE
 
         SELECT CASE (material) 
@@ -178,7 +179,6 @@
         SUBROUTINE set_max_radius
 ! set maximum radius based on radius parameters
         IMPLICIT NONE
-        !CALL set_ref_radius
         IF (is_fixed_radius) THEN
           max_radius = fixed_radius
         ELSE
