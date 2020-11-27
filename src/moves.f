@@ -4,6 +4,8 @@
         USE monte               ,ONLY: is_cut_splice
      &    , pre_cut_splice_period
      &    , cut_splice_freq
+     &    , is_cage_drive
+     &    , is_ring_drive
 !DEBUG BEGINS==============================================
 !       USE potential           ,ONLY: potential_type
 !DEBUG ENDS==============================================

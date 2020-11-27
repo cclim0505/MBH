@@ -3,6 +3,8 @@ acceptance_ratio		0.5
 is_cut_splice			.TRUE.		! activate cut and splice
 pre_cut_splice_period		150		! MC moves before cut and splice is used
 cut_splice_freq			10		! frequency of performing cut and splice
+is_cage_drive           .FALSE.      ! activate cage drive algorithm
+is_ring_drive           .FALSE.      ! activate ring drive algorithm
 
 
 

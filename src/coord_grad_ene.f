@@ -364,7 +364,6 @@
         SUBROUTINE read_atoms
 ! determine the number of atoms
         IMPLICIT NONE
-        INTEGER         :: atoms
         INTEGER         :: f_atoms
         OPEN(NEWUNIT=f_atoms,FILE=TRIM(in_file), STATUS='old')
         READ(f_atoms,*) atoms

@@ -11,11 +11,11 @@
         PRIVATE  :: calc_all_radius
         PRIVATE  :: angular_displacement
         PRIVATE  :: displace_angle
-        PRIVATE  :: random_move
         PRIVATE  :: sort_energies 
 
         PUBLIC  :: read_bh_param
         PUBLIC  :: printout_bh_param
+        PUBLIC  :: random_move
         PUBLIC  :: bhop_move
 
 

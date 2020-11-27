@@ -14,13 +14,13 @@
         REAL(KIND=SGL),PARAMETER  ::      min_atomic_dist = 0.5D0
         REAL(KIND=SGL)  ::      max_radius
 
-        PRIVATE          :: get_random3
         PRIVATE          :: get_min_dist
         PRIVATE          :: init_random_improved
         PRIVATE          :: set_max_radius
         PRIVATE          :: init_random_coord
         PRIVATE          :: set_ref_radius
 
+        PUBLIC          :: get_random3
         PUBLIC          :: set_random_coord
         PUBLIC          :: read_random_param
         PUBLIC          :: polar_2_cartesian
@@ -178,7 +178,7 @@
         SUBROUTINE set_max_radius
 ! set maximum radius based on radius parameters
         IMPLICIT NONE
-        CALL set_ref_radius
+        !CALL set_ref_radius
         IF (is_fixed_radius) THEN
           max_radius = fixed_radius
         ELSE

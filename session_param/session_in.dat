@@ -1,4 +1,4 @@
-number_of_atoms			10
+number_of_atoms			8
 material_or_element		Au
 potential_type			1		NOTE: 1:Gupta, 2:DFTB, 3:DFT
 ************************************************************

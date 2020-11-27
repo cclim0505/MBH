@@ -26,6 +26,7 @@ BASIN = basin_hopping
 MONTE = monte
 INERTIA = inertia
 SPLICE = cut_splice
+GEOMETRIC = geometric_drive
 MOVES = moves
 
 PARAM = param			#module to compliment senior's code
@@ -55,6 +56,7 @@ OBJS = 	$(CONST).o\
 	$(MONTE).o\
 	$(INERTIA).o\
 	$(SPLICE).o\
+	$(GEOMETRIC).o\
 	$(MOVES).o\
 	$(INIT).o\
 	$(ARRMAT).o\
@@ -106,6 +108,9 @@ $(INERTIA).o: $(INERTIA).f $(CONST).o $(CGE).o
 	$(FC) -c $(FFLAGS) $< 
 
 $(SPLICE).o: $(SPLICE).f $(CONST).o $(CGE).o $(INERTIA).o
+	$(FC) -c $(FFLAGS) $< 
+
+$(GEOMETRIC).o: $(GEOMETRIC).f $(CONST).o $(CGE).o $(RANDOM).o $(BASIN).o
 	$(FC) -c $(FFLAGS) $< 
 
 $(MOVES).o: $(MOVES).f $(BASIN).o $(SPLICE).o $(MONTE).o

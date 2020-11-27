@@ -5,6 +5,7 @@
      &    ,test_eig_rotate
      &    ,test_cut_splice
      &    ,test_improved_random
+        USE geometric_drive
 
 !==============================================================
 !       MPI OPTIONS
@@ -34,9 +35,13 @@
 
 !       CALL test_improved_random
 
-!       CALL simulate_BH
+!       CALL simulate_BH    ! old subroutine
 
-        CALL simulate_sampling
+!        CALL simulate_sampling     ! actual MBH sampling.
+
+        CALL test_cage
+
+        CALL test_ring
 
 
 !==============================================================

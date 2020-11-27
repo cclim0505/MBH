@@ -10,6 +10,8 @@
         REAL(KIND=SGL)        :: tempera=0.80000
         REAL(KIND=SGL)        :: acceptance_ratio=0.50000
         LOGICAL               :: is_cut_splice
+        LOGICAL               :: is_cage_drive
+        LOGICAL               :: is_ring_drive
         INTEGER                 :: pre_cut_splice_period
         INTEGER                 :: cut_splice_freq
 
@@ -38,6 +40,8 @@
         READ(f_mc,*) dummy, is_cut_splice
         READ(f_mc,*) dummy, pre_cut_splice_period
         READ(f_mc,*) dummy, cut_splice_freq
+        READ(f_mc,*) dummy, is_cage_drive
+        READ(f_mc,*) dummy, is_ring_drive
         CLOSE(f_mc)
         
         END SUBROUTINE read_mc_param
@@ -57,6 +61,8 @@
         WRITE(f_mc,*) 'is_cut_splice', is_cut_splice
         WRITE(f_mc,*) 'pre_cut_splice_period', pre_cut_splice_period
         WRITE(f_mc,*) 'cut_splice_freq', cut_splice_freq
+        WRITE(f_mc,*) 'is_cage_drive', is_cage_drive
+        WRITE(f_mc,*) 'is_ring_drive', is_ring_drive
         CLOSE(f_mc)
         
         END SUBROUTINE printout_mc_param
