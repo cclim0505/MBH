@@ -14,6 +14,7 @@
         LOGICAL               :: is_ring_drive
         INTEGER                 :: pre_cut_splice_period
         INTEGER                 :: cut_splice_freq
+        INTEGER                 :: cage_drive_freq
 
         PRIVATE  :: assign_lowest_energy_coord
         PRIVATE  :: calc_prob
@@ -41,6 +42,7 @@
         READ(f_mc,*) dummy, pre_cut_splice_period
         READ(f_mc,*) dummy, cut_splice_freq
         READ(f_mc,*) dummy, is_cage_drive
+        READ(f_mc,*) dummy, cage_drive_freq
         READ(f_mc,*) dummy, is_ring_drive
         CLOSE(f_mc)
         
@@ -62,6 +64,7 @@
         WRITE(f_mc,*) 'pre_cut_splice_period', pre_cut_splice_period
         WRITE(f_mc,*) 'cut_splice_freq', cut_splice_freq
         WRITE(f_mc,*) 'is_cage_drive', is_cage_drive
+        WRITE(f_mc,*) 'cage_drive_freq', cage_drive_freq
         WRITE(f_mc,*) 'is_ring_drive', is_ring_drive
         CLOSE(f_mc)
         

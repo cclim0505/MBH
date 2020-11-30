@@ -3,3 +3,6 @@
  is_cut_splice T
  pre_cut_splice_period         150
  cut_splice_freq          10
+ is_cage_drive F
+ cage_drive_freq          10
+ is_ring_drive F

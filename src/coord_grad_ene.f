@@ -28,8 +28,8 @@
         CHARACTER(LEN=18)        :: in_file 
 !DEBUG===============================================================
 
-        PRIVATE :: read_atoms           ! not used
-        PUBLIC :: read_coord            ! not used
+        PUBLIC :: read_atoms           ! for testing only
+        PUBLIC :: read_coord           ! for testing only
 
         PRIVATE :: calc_centroid
         PRIVATE :: read_coord_ene

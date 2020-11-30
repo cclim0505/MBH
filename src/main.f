@@ -1,10 +1,8 @@
         PROGRAM main
-        USE simulation          ,ONLY:simulate_BH
-     &    ,simulate_sampling
+        USE simulation          ,ONLY:simulate_sampling
      &    ,set_up_universal
      &    ,test_eig_rotate
      &    ,test_cut_splice
-     &    ,test_improved_random
         USE geometric_drive
 
 !==============================================================
@@ -33,15 +31,11 @@
 
 !       CALL test_cut_splice
 
-!       CALL test_improved_random
-
-!       CALL simulate_BH    ! old subroutine
-
 !        CALL simulate_sampling     ! actual MBH sampling.
 
-        CALL test_cage
+        CALL test_cage3
 
-        CALL test_ring
+!        CALL test_ring
 
 
 !==============================================================

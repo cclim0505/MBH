@@ -4,8 +4,10 @@
         USE monte               ,ONLY: is_cut_splice
      &    , pre_cut_splice_period
      &    , cut_splice_freq
+     &    , cage_drive_freq
      &    , is_cage_drive
      &    , is_ring_drive
+        USE geometric_drive     ,ONLY: cage_drive
 !DEBUG BEGINS==============================================
 !       USE potential           ,ONLY: potential_type
 !DEBUG ENDS==============================================
@@ -15,18 +17,25 @@
 
         SUBROUTINE generate_config(mc_step)
         INTEGER,INTENT(IN)      :: mc_step
-        INTEGER                 :: remainder
+        INTEGER                 :: remainder_cutsplice
+        INTEGER                 :: remainder_cage
 
-        remainder = MOD(mc_step, cut_splice_freq)
+        remainder_cutsplice = MOD(mc_step, cut_splice_freq)
+        remainder_cage = MOD(mc_step, cage_drive_freq)
 
         IF ( is_cut_splice .AND.
      &    mc_step > pre_cut_splice_period .AND.
-     &    remainder == 0) THEN
+     &    remainder_cutsplice == 0) THEN
 
           CALL cut_splice_move
 !DEBUG BEGINS==============================================
 !         PRINT *, 'after_cut_splice_move'
 !DEBUG ENDS==============================================
+
+        ELSE IF (is_cage_drive .AND. 
+     &    remainder_cage == 0 ) THEN
+
+          CALL cage_drive
 
         ELSE
 

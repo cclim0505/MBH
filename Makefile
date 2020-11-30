@@ -113,7 +113,7 @@ $(SPLICE).o: $(SPLICE).f $(CONST).o $(CGE).o $(INERTIA).o
 $(GEOMETRIC).o: $(GEOMETRIC).f $(CONST).o $(CGE).o $(RANDOM).o $(BASIN).o
 	$(FC) -c $(FFLAGS) $< 
 
-$(MOVES).o: $(MOVES).f $(BASIN).o $(SPLICE).o $(MONTE).o
+$(MOVES).o: $(MOVES).f $(BASIN).o $(SPLICE).o $(MONTE).o $(GEOMETRIC).o
 	$(FC) -c $(FFLAGS) $< 
 
 $(ARRMAT).o: $(ARRMAT).f $(CONST).o $(CGE).o

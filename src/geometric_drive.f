@@ -1,8 +1,23 @@
         MODULE geometric_drive
         USE constants           ,ONLY: SGL, DBL, PI
         USE coord_grad_ene      ,ONLY: atoms,coord,set_coord_to_origin
+     &    ,in_file, read_atoms, read_coord
         USE random_coord        ,ONLY: get_random3,polar_2_cartesian
         USE basin_hopping       ,ONLY: random_move
+
+        PUBLIC      :: locate_closest2centre
+        PUBLIC      :: move_target2peri
+        PUBLIC      :: set_ring_geometry
+
+        PUBLIC      :: cage_move
+        PUBLIC      :: multi_cage_move
+        PUBLIC      :: cage_drive
+        PUBLIC      :: multi_cage_drive
+
+        PUBLIC      :: test_ring
+        PUBLIC      :: test_cage1
+        PUBLIC      :: test_cage2
+        PUBLIC      :: test_cage3
 
         CONTAINS
 
@@ -14,26 +29,24 @@
         INTEGER,INTENT(OUT)     :: closest_index
         REAL(KIND=SGL),INTENT(OUT)  :: largest_radius, mean_radius
         INTEGER         :: iter
-        REAL(KIND=SGL),DIMENSION(:),ALLOCATABLE  :: radius
+        REAL(KIND=SGL),DIMENSION(:),ALLOCATABLE  :: radii
 
 ! Identify target atom
-        IF (ALLOCATED(radius)) DEALLOCATE(radius)
-        ALLOCATE(radius(atoms))
+        IF (ALLOCATED(radii)) DEALLOCATE(radii)
+        ALLOCATE(radii(atoms))
 
         DO iter=1,atoms
-          radius(iter) = NORM2(in_coord(:,iter))
+          radii(iter) = NORM2(in_coord(:,iter))
         END DO
-        largest_radius = MAXVAL(radius)
-        mean_radius = SUM(radius) / REAL(atoms)
-        closest_index = MINLOC(radius,1)
+        largest_radius = MAXVAL(radii)
+        mean_radius = SUM(radii) / REAL(atoms)
+        closest_index = MINLOC(radii,1)
 
-        PRINT '("Largest radius:", F14.7)', largest_radius
-        PRINT '("Mean radius:", F14.7)', mean_radius
-        PRINT '("Closest index:", I3)', closest_index
-
-! Preparation to move target atom
-
-! Move target atom
+!DEBUG BEGINS==============================================
+!        PRINT '("Largest radius:", F14.7)', largest_radius
+!        PRINT '("Mean radius:", F14.7)', mean_radius
+!        PRINT '("Closest index:", I3)', closest_index
+!DEBUG ENDS==============================================
 
         END SUBROUTINE locate_closest2centre
 
@@ -50,12 +63,18 @@
         polar_coord(1) = radius
         polar_coord(2) = PI * random_3(2)
         polar_coord(3) = 2.0 * PI * random_3(3)
-        PRINT *, 'Random three are:', random_3
-        PRINT *, 'Polar coord are:', polar_coord
+
+!DEBUG BEGINS==============================================
+!        PRINT *, 'Random three are:', random_3
+!        PRINT *, 'Polar coord are:', polar_coord
+!DEBUG ENDS==============================================
 
         CALL polar_2_cartesian(polar_coord)
 
-        PRINT *, 'Polar coords after transformation:', polar_coord
+!DEBUG BEGINS==============================================
+!        PRINT *, 'Polar coords after transformation:', polar_coord
+!DEBUG ENDS==============================================
+
         in_coord(:,target_index) = polar_coord
 
         END SUBROUTINE move_target2peri
@@ -79,18 +98,51 @@
         
         END SUBROUTINE set_ring_geometry
 
+        SUBROUTINE cage_drive
+        IMPLICIT NONE
+        CALL cage_move(coord)
+        END SUBROUTINE cage_drive
+
+        SUBROUTINE multi_cage_drive
+        IMPLICIT NONE
+        CALL multi_cage_move(6,coord)
+        END SUBROUTINE multi_cage_drive
+
+        SUBROUTINE multi_cage_move(steps,x_coord)
+        IMPLICIT NONE
+        INTEGER,INTENT(IN)  ::  steps
+        REAL(KIND=DBL),DIMENSION(:,:),INTENT(INOUT)     :: x_coord
+        REAL(KIND=SGL)      :: cluster_radius, mean_radius
+        INTEGER             :: atom_index
+        INTEGER             ::  iter
+
+        DO iter=1,steps
+          CALL set_coord_to_origin(x_coord)
+          CALL locate_closest2centre(x_coord, atom_index
+     &      , cluster_radius, mean_radius)
+          CALL move_target2peri(atom_index, cluster_radius, x_coord)
+
+        END DO
+        CALL random_move(x_coord)
+
+        END SUBROUTINE multi_cage_move
+
         SUBROUTINE cage_move(x_coord)
         IMPLICIT NONE
         REAL(KIND=DBL),DIMENSION(:,:),INTENT(INOUT)     :: x_coord
         REAL(KIND=SGL)  :: cluster_radius, mean_radius
         INTEGER         :: atom_index
-        INTEGER         :: iter
 
         CALL set_coord_to_origin(x_coord)
-        CALL locate_closest2centre(x_coord, atom_index, cluster_radius,
-     &    mean_radius)
+        CALL locate_closest2centre(x_coord, atom_index, cluster_radius
+     &    , mean_radius)
         CALL move_target2peri(atom_index, cluster_radius, x_coord)
         CALL random_move(x_coord)
+
+
+!DEBUG BEGINS==============================================
+!        PRINT *, "atom_index:", atom_index
+!DEBUG ENDS==============================================
 
         END SUBROUTINE cage_move
 
@@ -124,7 +176,7 @@
 
         END SUBROUTINE test_ring
 
-        SUBROUTINE test_cage
+        SUBROUTINE test_cage1
 ! Set coordinate to desired sample.
 ! Let's use a linear 8 atom chain cluster as example.
         IMPLICIT NONE
@@ -159,28 +211,72 @@
         coord(3,7) =     -0.322091520000000     
         coord(3,8) =     -0.371105690000000     
 
-        CALL set_coord_to_origin(coord)
+        CALL cage_move(coord)
 
-        PRINT *, "Set to origin"
+
+
+!        CALL set_coord_to_origin(coord)
+!
+!        PRINT *, "Set to origin"
+!        DO iter=1,atoms
+!          PRINT *, coord(1,iter), coord(2,iter), coord(3,iter)
+!        END DO
+!        PRINT *, " "
+!
+!        CALL locate_closest2centre(coord, atom_index, cluster_radius,
+!     &    mean_radius)
+!        CALL move_target2peri(atom_index, cluster_radius, coord)
+!
+!        DO iter=1,atoms
+!          PRINT *, coord(1,iter), coord(2,iter), coord(3,iter)
+!        END DO
+!
+!        CALL random_move(coord)
+
         DO iter=1,atoms
           PRINT *, coord(1,iter), coord(2,iter), coord(3,iter)
         END DO
-        PRINT *, " "
 
-        CALL locate_closest2centre(coord, atom_index, cluster_radius,
-     &    mean_radius)
-        CALL move_target2peri(atom_index, cluster_radius, coord)
+
+
+        END SUBROUTINE test_cage1
+
+        SUBROUTINE test_cage2
+! Set coordinate to desired sample.
+        IMPLICIT NONE
+        INTEGER         :: iter
+
+        in_file = "in.xyz"
+        
+
+        CALL read_atoms
+        CALL read_coord
+        CALL cage_drive
+
+!        CALL cage_move(coord)
 
         DO iter=1,atoms
           PRINT *, coord(1,iter), coord(2,iter), coord(3,iter)
         END DO
 
-        CALL random_move(coord)
+        END SUBROUTINE test_cage2
 
 
+        SUBROUTINE test_cage3
+        IMPLICIT NONE
+        INTEGER     :: iter
+        in_file = "in.xyz"
+        
 
-        END SUBROUTINE test_cage
+        CALL read_atoms
+        CALL read_coord
+        CALL multi_cage_drive
 
+        DO iter=1,atoms
+          PRINT *, coord(1,iter), coord(2,iter), coord(3,iter)
+        END DO
+
+        END SUBROUTINE test_cage3
 
 
 
