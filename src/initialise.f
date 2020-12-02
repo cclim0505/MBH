@@ -79,6 +79,7 @@
 ! read session simulation parameters
         USE directory           ,ONLY: session_dir
         USE coord_grad_ene,     ONLY: atoms,material,in_file
+     &    ,is_initial_given, initial_xyz
         USE potential,          ONLY: potential_type
      &    ,potent_1, potent_2
         IMPLICIT NONE
@@ -92,6 +93,9 @@
         READ(f_session,*) dummy, atoms       
         READ(f_session,*) dummy, material
         READ(f_session,*) dummy, potential_type
+        READ(f_session,*) ! skip row
+        READ(f_session,*) dummy, is_initial_given
+        READ(f_session,*) dummy, initial_xyz
         READ(f_session,*) ! skip row
         READ(f_session,*) dummy, is_resume_calc
         READ(f_session,*) dummy, total_mc_step
@@ -146,6 +150,7 @@
         SUBROUTINE printout_session_in
 ! printout session file inputs
         USE coord_grad_ene      ,ONLY: atoms,material,in_file
+     &    ,is_initial_given, initial_xyz
         USE potential           ,ONLY: potential_type
      &    ,potent_1, potent_2
         USE directory           ,ONLY: saved_session
@@ -162,6 +167,10 @@
      &    'material_or_element', material
         WRITE(f_session,'(X, A, T33, I8)') 
      &    'potential_type',potential_type
+        WRITE(f_session,'(60("*"))')
+        WRITE(f_session,'(X, A, T33, L)') 'is_initial_given'
+     &  , is_initial_given
+        WRITE(f_session,'(X, A, T33, 20A)')'initial_xyz', initial_xyz
         WRITE(f_session,'(60("*"))')
         WRITE(f_session,'(X, A, T33, L)') 'is_resume_calc'
      &  , is_resume_calc

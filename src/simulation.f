@@ -38,11 +38,15 @@
      &    , atoms
      &    , energy, old_energy
      &    , lowest_coord, lowest_energy
+     &    , is_initial_given,set_given_initial_coord
         USE potential           ,ONLY: calc_energy
-
         IMPLICIT NONE
 
-        CALL set_random_coord
+        IF (is_initial_given) THEN
+          CALL set_given_initial_coord
+        ELSE
+          CALL set_random_coord
+        END IF
 
         CALL local_minim
         coord = optim_coord

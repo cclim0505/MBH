@@ -1,8 +1,8 @@
  temperature_ratio  0.8000000    
  acceptance_ratio  0.5000000    
- is_cut_splice T
+ is_cut_splice F
  pre_cut_splice_period         150
  cut_splice_freq          10
- is_cage_drive F
+ is_cage_drive T
  cage_drive_freq          10
  is_ring_drive F

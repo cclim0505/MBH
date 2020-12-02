@@ -2,8 +2,11 @@
 PBS.*
 worker0*
 
-# ignore executable
+# ignore executable and associated object files
 *.out
+*.o
+*.mod
 
 # ignore iterate output from LBFGS
 iterate.dat
+

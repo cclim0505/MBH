@@ -24,6 +24,10 @@
         CHARACTER(LEN=24) :: local_coords='03_local_coords.xyz'
         CHARACTER(LEN=25) :: local_energies='03_local_energies.dat'
 
+        LOGICAL             ::  is_initial_given
+        CHARACTER(LEN=20)   ::  initial_xyz
+
+
 !DEBUG===============================================================
         CHARACTER(LEN=18)        :: in_file 
 !DEBUG===============================================================
@@ -45,10 +49,14 @@
         PUBLIC :: print_lowest_coord
         PUBLIC :: print_local_coord
         PUBLIC :: set_coord_to_origin
+        PUBLIC :: set_given_initial_coord
 
         PUBLIC :: resume_print_lowest_coord
         PUBLIC :: resume_print_old_coord
         PUBLIC :: read_resume_coord_ene
+
+        PUBLIC :: test_coord1
+
 
         CONTAINS
 
@@ -387,5 +395,33 @@
 
         END SUBROUTINE read_coord
 
+
+        SUBROUTINE set_given_initial_coord
+        IMPLICIT NONE
+        INTEGER                 :: iter
+        INTEGER                 :: f_coord
+        CHARACTER(len=1)        :: dummy
+
+        OPEN(NEWUNIT=f_coord,FILE=TRIM(initial_xyz), STATUS='old')
+        READ(f_coord,*)
+        READ(f_coord,*)
+        DO iter=1,atoms
+         READ(f_coord,*) dummy,coord(1,iter),coord(2,iter),coord(3,iter)
+        END DO
+        CLOSE(f_coord)
+
+        CALL set_coord_to_origin(coord)
+
+        END SUBROUTINE set_given_initial_coord
+
+        SUBROUTINE test_coord1
+        IMPLICIT NONE
+        CALL set_given_initial_coord
+
+!DEBUG===============================================================
+        CALL print_coord
+!DEBUG===============================================================
+
+        END SUBROUTINE test_coord1
 
         END MODULE coord_grad_ene

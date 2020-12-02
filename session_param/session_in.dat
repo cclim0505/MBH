@@ -1,6 +1,9 @@
 number_of_atoms			60
 material_or_element		Au
-potential_type			1		NOTE: 1:Gupta, 2:DFTB, 3:DFT
+potential_type			2		NOTE: 1:Gupta, 2:DFTB, 3:DFT
+************************************************************
+is_initial_given        .TRUE.
+initial_xyz             initial.xyz
 ************************************************************
 is_resume_calc			.FALSE.
 total_MC_steps			500

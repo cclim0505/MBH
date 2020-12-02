@@ -43,7 +43,7 @@ LBFGS = lbfgsb
 OPTIM = optimization
 
 
-### OBJECT LIST
+### OBJECT LIST for main
 OBJS = 	$(CONST).o\
 	$(DIR).o\
 	$(MPIVAR).o\
@@ -68,8 +68,40 @@ OBJS = 	$(CONST).o\
 	$(SIMUL).o\
 	$(DRIVER).o
 
+RUNCAGE = main_cage
 
-all :  main
+#=============================================================
+### OBJECT LIST for runCage
+OBJS_RUNCAGE = $(CONST).o\
+    $(DIR).o\
+    $(MPIVAR).o\
+    $(CGE).o\
+    $(GUPTA).o\
+    $(RANDOM).o\
+	$(DFTB).o\
+    $(POTENT).o\
+    $(BASIN).o\
+    $(GEOMETRIC).o\
+    $(RUNCAGE).o
+#=============================================================
+
+
+
+
+all :  main cage
+
+#=============================================================
+# Cage drive subprogramme
+#=============================================================
+cage: $(OBJS_RUNCAGE)
+	$(FC) $(OBJS_RUNCAGE) -o runCage.out
+
+$(RUNCAGE).o: $(RUNCAGE).f
+	$(FC) -c $(FFLAGS) $< 
+
+#=============================================================
+# Main MBH programme
+#=============================================================
 
 main: $(OBJS)
 	$(FC) $(FFLAGS) $(OBJS) -o $(PROGRAM)
@@ -147,6 +179,7 @@ $(DRIVER).o: $(DRIVER).f $(SIMUL).o $(MPIVAR).o
 clean:
 	rm *.o
 	rm *.mod
+
 cleaner:
 	rm run.out
 

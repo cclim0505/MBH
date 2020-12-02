@@ -1,6 +1,9 @@
  number_of_atoms                      60
  material_or_element            Au
- potential_type                        1
+ potential_type                        2
+************************************************************
+ is_initial_given                T
+ initial_xyz                    initial.xyz         
 ************************************************************
  is_resume_calc                  F
  total_MC_steps                      500

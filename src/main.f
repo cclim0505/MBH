@@ -4,6 +4,7 @@
      &    ,test_eig_rotate
      &    ,test_cut_splice
         USE geometric_drive
+        USE coord_grad_ene
 
 !==============================================================
 !       MPI OPTIONS
@@ -27,16 +28,18 @@
         CALL ch_work_dir
 !==============================================================
 
-!       CALL test_eig_rotate
+        CALL simulate_sampling     ! actual MBH sampling.
 
-!       CALL test_cut_splice
+!        CALL test_eig_rotate
 
-!        CALL simulate_sampling     ! actual MBH sampling.
+!        CALL test_cut_splice
 
-        CALL test_cage3
+
+!        CALL test_cage3
 
 !        CALL test_ring
 
+!        CALL test_coord1
 
 !==============================================================
 !       MPI OPTIONS
