@@ -120,7 +120,7 @@
           CALL set_coord_to_origin(x_coord)
           CALL locate_closest2centre(x_coord, atom_index
      &      , cluster_radius, mean_radius)
-          CALL move_target2peri(atom_index, cluster_radius, x_coord)
+          CALL move_target2peri(atom_index, mean_radius, x_coord)
 
         END DO
         CALL random_move(x_coord)
@@ -136,7 +136,7 @@
         CALL set_coord_to_origin(x_coord)
         CALL locate_closest2centre(x_coord, atom_index, cluster_radius
      &    , mean_radius)
-        CALL move_target2peri(atom_index, cluster_radius, x_coord)
+        CALL move_target2peri(atom_index, mean_radius, x_coord)
         CALL random_move(x_coord)
 
 
