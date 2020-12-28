@@ -6,6 +6,7 @@
 
         REAL(KIND=SGL)  :: random_displacement_ratio 
         REAL(KIND=SGL)  :: energy_compare_ratio 
+        LOGICAL         :: is_angular_dis_on
 
         PRIVATE  :: get_new_radius
         PRIVATE  :: calc_all_radius
@@ -33,6 +34,7 @@
      &    , FILE='./'//session_dir//'/'//bh_param_file, STATUS='old')
         READ(f_bh,*) dummy, random_displacement_ratio
         READ(f_bh,*) dummy, energy_compare_ratio
+        READ(f_bh,*) dummy, is_angular_dis_on
         CLOSE(f_bh)
 
         END SUBROUTINE read_bh_param
@@ -50,6 +52,7 @@
         WRITE(f_bh,*) 'random_displacement_ratio'
      &    , random_displacement_ratio
         WRITE(f_bh,*) 'energy_compare_ratio', energy_compare_ratio
+        WRITE(f_bh,*) 'is_angular_dis_on', is_angular_dis_on
         CLOSE(f_bh)
 
         END SUBROUTINE printout_bh_param
@@ -65,15 +68,18 @@
 
         CALL random_move(coord)
 
-        do_angle_disp = .FALSE.
-        CALL sort_energies(do_angle_disp,atom_index)
+
+        IF (is_angular_dis_on) THEN
+          do_angle_disp = .FALSE.
+          CALL sort_energies(do_angle_disp,atom_index)
 !DEBUG BEGINS==============================================
 !       IF(potential_type==2) PRINT *, 'after sort_energies'
 !DEBUG ENDS==============================================
 
-        IF (do_angle_disp .EQV. .TRUE.) THEN
-          CALL get_new_radius(max_radius)
-          CALL angular_displacement(atom_index)
+          IF (do_angle_disp) THEN
+            CALL get_new_radius(max_radius)
+            CALL angular_displacement(atom_index)
+          END IF
         END IF
 
         END SUBROUTINE bhop_move
