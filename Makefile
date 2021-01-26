@@ -12,6 +12,7 @@ FFLAGS = -llapack
 
 ### source names
 DRIVER = main
+BANNER = banner
 SIMUL = simulation
 
 MPIVAR = mpi_var
@@ -66,6 +67,7 @@ OBJS = 	$(CONST).o\
 	$(LBFGS).o\
 	$(OPTIM).o\
 	$(SIMUL).o\
+	$(BANNER).o\
 	$(DRIVER).o
 
 RUNCAGE = main_cage
@@ -145,7 +147,7 @@ $(SPLICE).o: $(SPLICE).f $(CONST).o $(CGE).o $(INERTIA).o
 $(GEOMETRIC).o: $(GEOMETRIC).f $(CONST).o $(CGE).o $(RANDOM).o $(BASIN).o
 	$(FC) -c $(FFLAGS) $< 
 
-$(MOVES).o: $(MOVES).f $(BASIN).o $(SPLICE).o $(MONTE).o $(GEOMETRIC).o
+$(MOVES).o: $(MOVES).f $(RANDOM).o $(BASIN).o $(SPLICE).o $(MONTE).o $(GEOMETRIC).o
 	$(FC) -c $(FFLAGS) $< 
 
 $(ARRMAT).o: $(ARRMAT).f $(CONST).o $(CGE).o
@@ -173,7 +175,10 @@ $(SIMUL).o: $(SIMUL).f $(INIT).o $(CGE).o $(CONST).o $(SPLICE).o $(INERTIA).o $(
 		$(OPTIM).o $(MONTE).o $(MOVES).o $(POTENT).o
 	$(FC) -c $(FFLAGS) $< 
 
-$(DRIVER).o: $(DRIVER).f $(SIMUL).o $(MPIVAR).o
+$(BANNER).o: $(BANNER).f 
+	$(FC) -c $(FFLAGS) $< 
+
+$(DRIVER).o: $(DRIVER).f $(BANNER).o $(SIMUL).o $(MPIVAR).o
 	$(FC) -c $(FFLAGS) $< 
 
 clean:

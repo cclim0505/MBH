@@ -1,7 +1,11 @@
+is_random_reset_on          .TRUE.     generate random coord repeatedly if true
+random_reset_freq       1
+min_atomic_dist         0.5
 confining_radius_ratio 		 0.88
 ref_radius			 4.0782		in angstroms for fcc gold
-is_fixed_radius			.FALSE.
-fixed_radius 			 3.0		in angstroms, minimum is 1.0
+is_fixed_radius			.TRUE.
+fixed_radius 			 2.0		in angstroms, minimum is 1.0
+is_gen_2d               .FALSE.
 
 
 

@@ -1,4 +1,6 @@
         MODULE moves
+        USE random_coord        ,ONLY: is_random_reset_on
+     &    , random_reset_freq, set_random_coord
         USE basin_hopping       ,ONLY: bhop_move
         USE cut_splice          ,ONLY: cut_splice_move
         USE monte               ,ONLY: is_cut_splice
@@ -17,13 +19,18 @@
 
         SUBROUTINE generate_config(mc_step)
         INTEGER,INTENT(IN)      :: mc_step
+        INTEGER                 :: remainder_random
         INTEGER                 :: remainder_cutsplice
         INTEGER                 :: remainder_cage
 
+        remainder_random = MOD(mc_step, random_reset_freq)
         remainder_cutsplice = MOD(mc_step, cut_splice_freq)
         remainder_cage = MOD(mc_step, cage_drive_freq)
 
-        IF ( is_cut_splice .AND.
+        IF ( is_random_reset_on .AND. remainder_random == 0 ) THEN
+          CALL set_random_coord
+
+        ELSE IF ( is_cut_splice .AND.
      &    mc_step > pre_cut_splice_period .AND.
      &    remainder_cutsplice == 0) THEN
 

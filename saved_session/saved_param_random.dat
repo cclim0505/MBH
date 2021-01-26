@@ -1,4 +1,8 @@
+ is_random_reset_on T
+ random_reset_freq           1
+ min_atomic_dist  0.5000000    
  confining_radius_ratio  0.8800000    
  ref_radius   4.078200    
- is_fixed_radius F
- fixed_radius   3.000000    
+ is_fixed_radius T
+ fixed_radius   2.000000    
+ is_gen_2d F

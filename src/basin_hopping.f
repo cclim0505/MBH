@@ -4,9 +4,9 @@
         USE random_coord        ,ONLY: max_radius, polar_2_cartesian
         USE gupta               
 
+        LOGICAL         :: is_angular_dis_on
         REAL(KIND=SGL)  :: random_displacement_ratio 
         REAL(KIND=SGL)  :: energy_compare_ratio 
-        LOGICAL         :: is_angular_dis_on
 
         PRIVATE  :: get_new_radius
         PRIVATE  :: calc_all_radius
@@ -32,9 +32,9 @@
 
         OPEN(NEWUNIT=f_bh
      &    , FILE='./'//session_dir//'/'//bh_param_file, STATUS='old')
+        READ(f_bh,*) dummy, is_angular_dis_on
         READ(f_bh,*) dummy, random_displacement_ratio
         READ(f_bh,*) dummy, energy_compare_ratio
-        READ(f_bh,*) dummy, is_angular_dis_on
         CLOSE(f_bh)
 
         END SUBROUTINE read_bh_param
@@ -49,10 +49,10 @@
         OPEN(NEWUNIT=f_bh
      &    , FILE='./'//saved_session//'/'//bh_param_file
      &    , STATUS='replace')
+        WRITE(f_bh,*) 'is_angular_dis_on', is_angular_dis_on
         WRITE(f_bh,*) 'random_displacement_ratio'
      &    , random_displacement_ratio
         WRITE(f_bh,*) 'energy_compare_ratio', energy_compare_ratio
-        WRITE(f_bh,*) 'is_angular_dis_on', is_angular_dis_on
         CLOSE(f_bh)
 
         END SUBROUTINE printout_bh_param

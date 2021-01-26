@@ -11,10 +11,15 @@
         REAL(KIND=SGL)  ::      ref_radius
         LOGICAL         ::      is_fixed_radius
         REAL(KIND=SGL)  ::      fixed_radius
-        REAL(KIND=SGL),PARAMETER  ::      min_atomic_dist = 0.5D0
+        LOGICAL         ::      is_gen_2d
+
+        LOGICAL         ::      is_random_reset_on
+        INTEGER         ::      random_reset_freq
+        REAL(KIND=SGL)  ::      min_atomic_dist 
         REAL(KIND=SGL)  ::      max_radius
 
         PRIVATE          :: get_min_dist
+        PRIVATE          :: init_random_2d
         PRIVATE          :: init_random_improved
         PRIVATE          :: set_max_radius
         PRIVATE          :: init_random_coord
@@ -55,20 +60,34 @@
 !       PRINT *, "Max radius is", max_radius
 !DEBUG ENDS==============================================
 !       CALL init_random_coord(atoms,coord)
-        CALL init_random_improved(atoms,coord)
+        IF (is_gen_2d) THEN
+          CALL init_random_2d(atoms,coord)
+        ELSE
+          CALL init_random_improved(atoms,coord)
+        END IF
         END SUBROUTINE set_random_coord
 
         SUBROUTINE get_random3(array)
 ! get an array of 3 random numbers
         USE mpi_var             ,ONLY: myid
         IMPLICIT NONE
-        REAL(KIND=SGL),DIMENSION(3),INTENT(OUT)     :: array
+        REAL(KIND=SGL),DIMENSION(4),INTENT(OUT)     :: array
         INTEGER,DIMENSION(1)            :: seed
         REAL                            :: real_seed
+        INTEGER,SAVE                    :: perturb=0
+
+!       PRINT *, "1st perturb", perturb
+
         CALL CPU_TIME(real_seed)
-        seed = INT(1E8*real_seed)
+        seed = INT(1E9*real_seed) + perturb
         CALL RANDOM_SEED(PUT=seed+myid)
         CALL RANDOM_NUMBER(array)
+
+        perturb = seed(1)
+!       PRINT *, "seed:",seed
+
+!       PRINT *, "2nd perturb", perturb
+
         END SUBROUTINE get_random3
 
 
@@ -104,7 +123,9 @@
         IMPLICIT NONE
         INTEGER,INTENT(IN)                             :: natoms
         REAL(KIND=DBL),DIMENSION(:,:),INTENT(INOUT)    :: x_coord
-        REAL(KIND=SGL),DIMENSION(3)                    :: random_3
+        REAL(KIND=SGL),DIMENSION(4)                    :: random_3
+        ! 4 elements for this array because 1st element is almost
+        ! predictable in increasing order.
         INTEGER                         :: iter
 
         REAL(KIND=DBL)          :: min_dist
@@ -112,9 +133,9 @@
 ! Assign first atom
         CALL get_random3(random_3)
 
-        x_coord(1,1) = max_radius * random_3(1)
-        x_coord(2,1) = PI * random_3(2)
-        x_coord(3,1) = 2.0 * PI * random_3(3)
+        x_coord(1,1) = max_radius * random_3(2)
+        x_coord(2,1) = PI * random_3(3)
+        x_coord(3,1) = 2.0 * PI * random_3(4)
 
         CALL polar_2_cartesian(x_coord(:,1))
 
@@ -124,9 +145,9 @@
           IF (iter > natoms) EXIT
           CALL get_random3(random_3)
 
-          x_coord(1,iter) = max_radius * random_3(1)
-          x_coord(2,iter) = PI * random_3(2)
-          x_coord(3,iter) = 2.0 * PI * random_3(3)
+          x_coord(1,iter) = max_radius * random_3(2)
+          x_coord(2,iter) = PI * random_3(3)
+          x_coord(3,iter) = 2.0 * PI * random_3(4)
           CALL polar_2_cartesian(x_coord(:,iter))
           CALL get_min_dist(x_coord,iter,min_dist)
 
@@ -137,6 +158,63 @@
 
         END SUBROUTINE init_random_improved
 
+        SUBROUTINE init_random_2d(natoms,x_coord)
+! initialise random coordinates, but confined to 2d structures.
+        IMPLICIT NONE
+        INTEGER,INTENT(IN)                             :: natoms
+        REAL(KIND=DBL),DIMENSION(:,:),INTENT(INOUT)    :: x_coord
+        REAL(KIND=SGL),DIMENSION(4)                    :: random_3
+        INTEGER                         :: iter
+
+        REAL(KIND=DBL)          :: min_dist
+
+! Assign first atom
+        CALL get_random3(random_3)
+
+        x_coord(1,1) = max_radius * random_3(2)
+        x_coord(2,1) = PI * 0.5D0
+        x_coord(3,1) = 2.0 * PI * random_3(4)
+
+        CALL polar_2_cartesian(x_coord(:,1))
+
+! Assign the rest
+        iter = 2
+        DO
+          IF (iter > natoms) EXIT
+          CALL get_random3(random_3)
+
+          x_coord(1,iter) = max_radius * random_3(2)
+          x_coord(2,iter) = PI * 0.5D0
+          x_coord(3,iter) = 2.0 * PI * random_3(4)
+          CALL polar_2_cartesian(x_coord(:,iter))
+          CALL get_min_dist(x_coord,iter,min_dist)
+
+!=====
+! Debug
+!         PRINT *, "Random 3 are:",random_3
+!=====
+          IF (min_dist < min_atomic_dist) CYCLE
+
+          iter = iter + 1
+        END DO
+
+        END SUBROUTINE init_random_2d
+
+        SUBROUTINE test_2d_init
+        USE coord_grad_ene      ,ONLY:print_coord
+        IMPLICIT NONE
+        INTEGER         :: iter
+
+        DO iter=1,10
+        CALL set_max_radius
+        CALL init_random_2d(atoms, coord)
+
+!       CALL init_random_improved(atoms, coord)
+        CALL print_coord
+
+        END DO
+
+        END SUBROUTINE test_2d_init
 
         SUBROUTINE read_random_param
 ! read in parameters to generate random initial coordinates
@@ -148,10 +226,14 @@
 
         OPEN(NEWUNIT=f_random
      &    ,FILE='./'//session_dir//'/'//random_param_file, STATUS='old')
+        READ(f_random,*) dummy, is_random_reset_on
+        READ(f_random,*) dummy, random_reset_freq
+        READ(f_random,*) dummy, min_atomic_dist
         READ(f_random,*) dummy, radius_ratio
         READ(f_random,*) dummy, ref_radius
         READ(f_random,*) dummy, is_fixed_radius
         READ(f_random,*) dummy, fixed_radius
+        READ(f_random,*) dummy, is_gen_2d
         CLOSE(f_random)
         
         END SUBROUTINE read_random_param
@@ -168,10 +250,14 @@
         OPEN(NEWUNIT=f_random 
      &    , FILE='./'//saved_session//'/'//random_param_file
      &    , STATUS='replace')
+        WRITE(f_random,*) 'is_random_reset_on', is_random_reset_on
+        WRITE(f_random,*) 'random_reset_freq', random_reset_freq
+        WRITE(f_random,*) 'min_atomic_dist', min_atomic_dist
         WRITE(f_random,*) 'confining_radius_ratio', radius_ratio
         WRITE(f_random,*) 'ref_radius', ref_radius
         WRITE(f_random,*) 'is_fixed_radius', is_fixed_radius
         WRITE(f_random,*) 'fixed_radius', fixed_radius
+        WRITE(f_random,*) 'is_gen_2d', is_gen_2d
         CLOSE(f_random)
         
         END SUBROUTINE printout_random_param

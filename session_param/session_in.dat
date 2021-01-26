@@ -1,8 +1,8 @@
-number_of_atoms			60
+number_of_atoms			10
 material_or_element		Au
 potential_type			2		NOTE: 1:Gupta, 2:DFTB, 3:DFT
 ************************************************************
-is_initial_given        .TRUE.
+is_initial_given        .FALSE.
 initial_xyz             initial.xyz
 ************************************************************
 is_resume_calc			.FALSE.

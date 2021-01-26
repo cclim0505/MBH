@@ -2,7 +2,7 @@
 #PBS -N Serial_test
 #PBS -q serial
 #PBS -l select=1:ncpus=1:mpiprocs=1
-#PBS -l walltime=00:02:00
+#PBS -l walltime=00:10:00
 #PBS -P MST108285
 #PBS -o PBS.log
 #PBS -e PBS.err

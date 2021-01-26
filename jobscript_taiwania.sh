@@ -8,7 +8,7 @@
 #PBS -e PBS.err
 ####PBS -r n
 cd $PBS_O_WORKDIR
-export OMP_NUM_THREADS=2
+export OMP_NUM_THREADS=1
 module load intel/2018_u1
 module load mpi/openmpi-3.0.0/intel2018u1
 mpirun ./run.out

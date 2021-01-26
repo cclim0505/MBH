@@ -56,7 +56,7 @@
         INTEGER,INTENT(IN)      :: target_index
         REAL(KIND=SGL),INTENT(IN)  :: radius
         REAL(KIND=DBL),DIMENSION(:,:),INTENT(INOUT)  :: in_coord
-        REAL(KIND=SGL),DIMENSION(3)       :: random_3
+        REAL(KIND=SGL),DIMENSION(4)       :: random_3
         REAL(KIND=DBL),DIMENSION(3)       :: polar_coord
 
         CALL get_random3(random_3)

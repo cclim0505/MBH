@@ -83,7 +83,8 @@
         IF (is_resume_calc) init_step = resume_mc_step
         
         DO iter=init_step,mc_steps
-          CALL generate_config(iter)
+            CALL generate_config(iter)
+
           CALL local_minim
           IF (optim_ierr == 0) THEN
             coord = optim_coord
